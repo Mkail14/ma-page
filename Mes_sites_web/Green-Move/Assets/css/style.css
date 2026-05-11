@@ -1,0 +1,346 @@
+html, body {
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+}
+
+
+.bg-blur {
+    position: fixed;
+    inset: 0;
+    background: url('../img/background.jpg') center/cover no-repeat;
+    filter: blur(10px);
+    transform: scale(1.05);
+    z-index: -1;
+}
+
+
+.glass {
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+
+.hero {
+    min-height: calc(100vh - 20px);
+    display: flex;
+    align-items: center;
+}
+
+
+.img1 {
+    display: flex;
+    gap: 15px;
+    margin-top: 30%;
+}
+
+#arrow1 {
+    position: absolute;
+    top: 9.5%;
+    right: 122%;
+}
+#arrow1-1 {
+    margin-top: 13%;
+}
+
+#arrow1-2 {
+   position: absolute;
+    top: 104%;
+    left: 92%;
+}
+.img-anim1,
+.img-anim2 {
+    width: 50%;
+    border-radius: 10px;
+    transition: 0.3s ease;
+}
+
+.img1:hover .img-anim1 {
+    transform: rotate(5deg) scale(1.05);
+}
+
+.img1:hover .img-anim2 {
+    transform: rotate(-5deg) scale(1.05);
+}
+
+
+.hover-zone {
+    position: relative;
+}
+
+
+.arrow1,
+.arrow2,
+.txt1,
+.txt2 {
+    opacity: 0;
+    transition: 0.3s ease;
+}
+
+
+.hover-zone:hover .arrow1,
+.hover-zone:hover .arrow2,
+.hover-zone:hover .txt1,
+.hover-zone:hover .txt2 {
+    opacity: 1;
+}
+
+
+.arrow1 {
+    width: 200px;
+    height: 100px;
+    border-top: 3px solid white;
+    border-radius: 0 100px 0 0;
+
+    position: absolute;
+    top: 2%;
+    right: 90%;
+    transform: rotate(5deg);
+}
+
+
+.arrow2 {
+    width: 200px;
+    height: 100px;
+    border-right: 3px solid white;
+    border-radius: 0 100px 0 0;
+
+    position: absolute;
+    top: 89%;
+    left: 85%;
+    transform: rotate(5deg);
+}
+
+.section-page-de-connexion {
+    position: relative;
+    min-height: 100vh;
+    overflow: hidden;
+    background: linear-gradient(rgba(5, 84, 14, 0.35), rgb(10, 9, 9));
+}
+
+.section2 {
+    background: linear-gradient(rgb(5, 84, 14), rgb(10, 9, 9));
+    min-height: 100vh;
+}
+
+
+.card1 {
+    margin-top: 18rem;
+}
+
+
+.images-right {
+    position: absolute;
+    right: 1px;
+    top: 0;
+    height: 100%;
+    display: flex;
+    gap: 20px;
+    padding: 20px;
+}
+
+.col-img {
+    width: 200px;
+    height: 100%;
+    overflow: hidden;
+    border-radius: 15px;
+}
+
+.track {
+    display: flex;
+    flex-direction: column;
+    animation: scrollUp 30s linear infinite;
+}
+
+
+.track img {
+    width: 100%;
+    height: 300px;
+    object-fit: cover;
+    margin-bottom: 30px;
+    border-radius: 12px;
+}
+
+@keyframes scrollUp {
+    0% {
+        transform: translateY(0);
+    }
+    100% {
+        transform: translateY(-50%);
+    }
+}
+
+
+
+
+@keyframes scrollDown {
+    0% {
+        transform: translateY(-50%);
+    }
+    100% {
+        transform: translateY(0);
+    }
+}
+
+
+@media (max-width: 992px) {
+    .images-right {
+        display: none;
+    }
+}
+
+
+.taille{
+    margin-top: 21%;
+    margin-bottom: 21%;
+
+}
+
+.card-img-top {
+    width: 100%;
+    height: 250px;
+    object-fit: cover;
+    border-radius: 12px 12px 0 0;
+}
+
+
+.content-box {
+    position: relative;
+    max-width: 500px;
+}
+
+
+.content-default {
+    transition: 0.4s ease;
+}
+
+
+.content-hover {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -40%);
+    opacity: 0;
+    transition: 0.4s ease;
+    width: 100%;
+}
+
+.bg-side:hover .content-default {
+    opacity: 0;
+    transform: translateY(-20px);
+}
+
+.bg-side:hover .content-hover {
+    opacity: 1;
+    transform: translate(-50%, -50%);
+}
+
+
+.service-card {
+    transition: all 0.4s ease;
+    border: none;
+    overflow: hidden;
+}
+        
+.service-card:hover {
+    transform: translateY(-10px);
+}
+
+.advantage-card {
+    transition: all 0.4s ease;
+    border: 1px solid rgba(0, 255, 136, 0.2);
+}
+
+.advantage-card:hover {
+    transform: translateY(-8px);
+}
+
+
+
+.prix-card {
+    background: rgba(255, 255, 255, 0.109);
+    border: 1px solid rgba(0, 255, 136, 0.2);
+    border-radius: 20px;
+    backdrop-filter: blur(10px);
+    transition: 0.4s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+
+.prix-card:hover {
+    transform: translateY(-12px) scale(1.03);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
+    border-color: rgba(0, 255, 136, 0.6);
+}
+
+.tarif-btn {
+    transition: background-color 0.25s ease, color 0.25s ease, border-color 0.25s ease, transform 0.25s ease;
+}
+
+.tarif-btn.is-selected {
+    background-color: #00ff88 !important;
+    border-color: #00ff88 !important;
+    color: #062b1b !important;
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(0, 255, 136, 0.25);
+}
+
+
+.price {
+    font-size: 2.2rem;
+    font-weight: bold;
+    color: #00ff88;
+}
+
+.price span {
+    font-size: 1rem;
+    color: white;
+    opacity: 0.7;
+}
+
+#box-decouverte {
+    background: linear-gradient(135deg, rgba(0, 255, 136, 0.2), rgba(255, 255, 255, 0.2));
+    border: 1px solid rgba(0, 255, 136, 0.4);
+    box-shadow: 0 10px 20px rgba(0, 255, 136, 0.3);
+}
+
+
+
+  
+
+        .contact-box {
+            max-width: 600px;
+            margin: 80px auto;
+            padding: 30px;
+            border-radius: 20px;
+            background: rgba(255,255,255,0.05);
+            backdrop-filter: blur(10px);
+        }
+
+        .form-control {
+            background: rgba(255,255,255,0.1);
+            border: none;
+            color: white;
+        }
+
+        .form-control::placeholder {
+            color: #ccc;
+        }
+
+        .form-control:focus {
+            background: rgba(255,255,255,0.15);
+            color: white;
+            box-shadow: none;
+        }
+
+        .btn-custom {
+            background: #6366f1;
+            border: none;
+        }
+
+        .btn-custom:hover {
+            background: #4f46e5;
+        }
