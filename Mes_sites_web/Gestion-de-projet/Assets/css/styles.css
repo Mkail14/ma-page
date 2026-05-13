@@ -306,6 +306,45 @@ body{
 /* ── TOGGLE VIEW BUTTON ── */
 #toggleViewClients{padding:8px 16px;font-size:12px}
 
+
+.github-block{
+  margin-top:30px;
+  padding:20px;
+  border-radius:18px;
+  background:rgba(255,255,255,0.06);
+  backdrop-filter:blur(16px);
+  border:1px solid rgba(255,255,255,0.08);
+}
+
+.updates-list{
+  margin-top:15px;
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
+
+.update-item{
+  display:flex;
+  gap:10px;
+  padding:10px;
+  border-radius:12px;
+  background:rgba(255,255,255,0.04);
+  transition:.2s;
+}
+
+.update-item:hover{
+  transform:translateX(5px);
+  background:rgba(124,58,237,0.08);
+}
+
+.update-dot{
+  width:8px;
+  height:8px;
+  border-radius:50%;
+  background:#7c3aed;
+  margin-top:6px;
+}
+
 /* ── RESPONSIVE ── */
 @media(max-width:900px){
   .hero h1{font-size:46px}

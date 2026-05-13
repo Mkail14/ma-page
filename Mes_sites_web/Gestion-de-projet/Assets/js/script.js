@@ -455,3 +455,28 @@ function updateHeroTitle(){
     heroTitle.classList.remove("change");
   }, 150);
 }
+
+
+
+fetch("https://api.github.com/repos/Mkail14/ma-page/commits")
+  .then(res => res.json())
+  .then(data => {
+    let html = "";
+
+    data.slice(0, 5).forEach(commit => {
+      const message = commit.commit.message;
+      const date = new Date(commit.commit.author.date).toLocaleString();
+
+      html += `
+        <div class="update-item">
+          <div class="update-dot"></div>
+          <div>
+            <strong>${message}</strong>
+            <p>${date}</p>
+          </div>
+        </div>
+      `;
+    });
+
+    document.getElementById("githubUpdates").innerHTML = html;
+  });
