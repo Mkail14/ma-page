@@ -3,18 +3,17 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Gestion des produits</title>
+<title>Gestion</title>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"/>
 <link rel="stylesheet" href="/Mes_sites_web/Gestion-de-projet/Assets/css/styles.css">
 </head>
 <body>
-
+<div class="menu-overlay" id="menuOverlay"></div>
 <div class="bg-glow"></div>
 <div class="modal-backdrop-custom" id="modalBackdrop"></div>
 
-
-
+<!-- ══ MODAL PRODUIT ══ -->
 <div class="form-modal" id="formModal">
   <div class="form-modal-header">
     <h4>
@@ -43,7 +42,7 @@
   </form>
 </div>
 
-
+<!-- ══ MODAL CLIENT ══ -->
 <div class="form-modal modal-client" id="formModalClient">
   <div class="form-modal-header">
     <h4>
@@ -96,10 +95,10 @@
 
     <!-- GAUCHE -->
     <div class="hero-left">
-      <h1>Gérez vos produits</h1>
+      <h1 id="heroTitle">Gérez vos produits</h1>
       <p>Une plateforme moderne pour suivre stock, clients et ventes.</p>
 
-      <!-- TOOLBAR FULL WIDTH -->
+      <!-- TOOLBAR -->
       <div class="toolbar-row" id="toolbarRow" style="display:none">
         <button id="btnAjouter" class="glass-btn mode-produit">
           <i class="fas fa-plus"></i>
@@ -109,37 +108,23 @@
       </div>
     </div>
 
-    <!-- DROITE — STATS CARD ANIMÉE -->
+    <!-- STATS CARD -->
     <div class="stats-card" id="statsCard">
-
-      <!-- Slide 1 : Produits -->
       <div class="stat-slide active" id="slide0">
         <div>
-          <div class="stat-eyebrow">
-            <span class="stat-dot produit"></span>
-            Inventaire
-          </div>
+          <div class="stat-eyebrow"><span class="stat-dot produit"></span>Inventaire</div>
           <div class="stat-number produit" id="statNbProduits">0</div>
           <div class="stat-label-main">produits en stock</div>
         </div>
       </div>
-
-      <!-- Slide 2 : Clients -->
       <div class="stat-slide" id="slide1">
         <div>
-          <div class="stat-eyebrow">
-            <span class="stat-dot client"></span>
-            Clients
-          </div>
+          <div class="stat-eyebrow"><span class="stat-dot client"></span>Clients</div>
           <div class="stat-number client" id="statNbClients">0</div>
           <div class="stat-label-main">clients enregistrés</div>
         </div>
       </div>
-
-      <!-- Barre de progression -->
       <div class="stats-progress-bar" id="statsProgressBar"></div>
-
-      <!-- Indicateurs -->
       <div class="stat-indicators">
         <div class="stat-indicator active" id="dot0"></div>
         <div class="stat-indicator" id="dot1"></div>
@@ -183,10 +168,7 @@
           <div style="overflow-x:auto">
             <table class="glass-table">
               <thead>
-                <tr>
-                  <th>ID</th><th>Nom</th><th>Catégorie</th>
-                  <th>Prix</th><th>Stock</th><th>Actions</th>
-                </tr>
+                <tr><th>ID</th><th>Nom</th><th>Catégorie</th><th>Prix</th><th>Stock</th><th>Actions</th></tr>
               </thead>
               <tbody id="tbody"></tbody>
             </table>
@@ -206,21 +188,28 @@
 
         <!-- FILTRES CLIENTS -->
         <div class="filter-bar" id="filterBarClients">
-          <span class="filter-label"><i class="fas fa-filter" style="margin-right:5px"></i>Filtrer :</span>
+          <span class="filter-label"><i class="fas fa-filter"></i> Filtrer :</span>
           <select class="filter-select client-select" id="filterVille">
             <option value="">Toutes les villes</option>
           </select>
           <select class="filter-select client-select" id="filterAlpha">
             <option value="">Ordre d'ajout</option>
-            <option value="az">A → Z (nom)</option>
-            <option value="za">Z → A (nom)</option>
+            <option value="az">A → Z</option>
+            <option value="za">Z → A</option>
           </select>
-          <button class="filter-reset" id="resetFilterClients"><i class="fas fa-rotate-left"></i> Réinitialiser</button>
+          <button class="filter-reset" id="resetFilterClients">
+            <i class="fas fa-rotate-left"></i> Reset
+          </button>
+          <button id="toggleViewClients" class="glass-btn mode-client">
+            <i class="fas fa-th-large"></i> Mode Cards
+          </button>
         </div>
 
-        <!-- TABLE CLIENTS -->
+        <!-- CLIENTS WRAP (table + cards) -->
         <div class="table-wrap" id="wrapClients">
-          <div style="overflow-x:auto">
+
+          <!-- TABLE MODE -->
+          <div id="clientTableWrap" style="overflow-x:auto">
             <table class="glass-table clients-table">
               <thead>
                 <tr>
@@ -231,6 +220,10 @@
               <tbody id="tbodyClients"></tbody>
             </table>
           </div>
+
+          <!-- CARD MODE -->
+          <div id="clientsCardGrid" style="display:none"></div>
+
         </div>
 
       </div>

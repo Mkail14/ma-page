@@ -1,12 +1,25 @@
 // ================= MENU =================
 const menuBtn = document.getElementById("menuBtn");
 const menuPanel = document.getElementById("menuPanel");
+const menuOverlay = document.getElementById("menuOverlay");
 
 menuBtn.addEventListener("click", () => {
+
     menuBtn.classList.toggle("active");
     menuPanel.classList.toggle("active");
+    menuOverlay.classList.toggle("active");
+
 });
 
+
+// Fermer quand on clique dans le vide
+menuOverlay.addEventListener("click", () => {
+
+    menuBtn.classList.remove("active");
+    menuPanel.classList.remove("active");
+    menuOverlay.classList.remove("active");
+
+});
 
 // ================= TODO LIST =================
 const inputTache = document.getElementById("inputTache");
@@ -191,3 +204,160 @@ btnInscription.addEventListener("click", () => {
         </div>
     `;
 });
+
+
+
+// ================= GITHUB API =================
+
+const githubUpdates = document.getElementById("githubUpdates");
+
+// ⚠️ CHANGE ICI
+const USERNAME = "TON_USERNAME_GITHUB";
+const REPO = "TON_REPO";
+
+async function chargerGithub() {
+
+    try{
+
+        const response = await fetch(
+            `https://api.github.com/repos/${USERNAME}/${REPO}/commits`
+        );
+
+        const data = await response.json();
+
+        githubUpdates.innerHTML = "";
+
+        data.slice(0,5).forEach(commit => {
+
+            const item = document.createElement("div");
+            item.classList.add("update-item");
+
+            item.innerHTML = `
+                <div class="update-dot"></div>
+
+                <div>
+                    <strong>${commit.commit.message}</strong>
+
+                    <p>
+                        ${commit.commit.author.name}
+                        •
+                        ${new Date(commit.commit.author.date).toLocaleDateString("fr-FR")}
+                    </p>
+                </div>
+            `;
+
+            githubUpdates.appendChild(item);
+
+        });
+
+    }catch(err){
+
+        githubUpdates.innerHTML = `
+            <div class="event-empty">
+                Impossible de charger GitHub
+            </div>
+        `;
+
+    }
+
+}
+
+chargerGithub();
+
+
+// ================= CALENDAR =================
+
+const btnAddEvent = document.getElementById("btnAddEvent");
+const eventList = document.getElementById("eventList");
+const eventEmpty = document.getElementById("eventEmpty");
+
+let events = [];
+
+function renderEvents(){
+
+    eventList.innerHTML = "";
+
+    if(events.length === 0){
+
+        eventEmpty.style.display = "flex";
+        return;
+    }
+
+    eventEmpty.style.display = "none";
+
+    events.forEach((event,index)=>{
+
+        const li = document.createElement("li");
+        li.classList.add("event-item");
+
+        li.innerHTML = `
+            <div>
+                <strong>${event.nom}</strong>
+                <div class="event-date">${event.date}</div>
+            </div>
+
+            <button onclick="supprimerEvent(${index})">
+                <i class="fa-solid fa-trash"></i>
+            </button>
+        `;
+
+        eventList.appendChild(li);
+
+    });
+
+}
+
+const eventOverlay = document.getElementById("eventOverlay");
+const closeEvent = document.getElementById("closeEvent");
+
+const eventName = document.getElementById("eventName");
+const eventDate = document.getElementById("eventDate");
+
+const saveEvent = document.getElementById("saveEvent");
+
+
+// OUVRIR POPUP
+btnAddEvent.addEventListener("click",()=>{
+
+    eventOverlay.classList.add("active");
+
+});
+
+
+// FERMER POPUP
+closeEvent.addEventListener("click",()=>{
+
+    eventOverlay.classList.remove("active");
+
+});
+
+
+// AJOUT EVENT
+saveEvent.addEventListener("click",()=>{
+
+    const nom = eventName.value.trim();
+    const date = eventDate.value;
+
+    if(!nom || !date) return;
+
+    events.push({nom,date});
+
+    renderEvents();
+
+    eventName.value = "";
+    eventDate.value = "";
+
+    eventOverlay.classList.remove("active");
+
+});
+
+
+function supprimerEvent(index){
+
+    events.splice(index,1);
+
+    renderEvents();
+
+}
+
+renderEvents();

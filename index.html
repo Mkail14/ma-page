@@ -11,18 +11,20 @@
 </head>
 
 <body>
+    
+    <div class="menu-overlay" id="menuOverlay"></div>
     <div class="menu-panel" id="menuPanel">
 
         <div class="section">
             <h6>Réalisations sites</h6>
-            <a href="/Mes_sites_web/Gestion-de-projet/index.html">Gestion de produit</a>
+            <a href="/Mes_sites_web/Gestion-de-projet/index.html">Site de Gestion</a>
             <a href="/Mes_sites_web/Green-Move/index.html">Copie - Green Moove</a>
             <a href="/Mes_sites_web/Copie-de-site-Landing-page/index.html">Landing page</a>
         </div>
 
         <div class="section">
-            <h6>À propos</h6>
-            <a href="#">Moi</a>
+            <h6>DWWM</h6>
+            <a href="#">Mon dossier</a>
             <a href="#">Ma formation</a>
         </div>
 
@@ -73,27 +75,77 @@
             </div>
         </div>
 
+        <!-- ================= CENTER BLOCKS ================= -->
+    <div class="center-blocks">
+
+    <!-- GitHub Activity -->
+    <div class="glass-block github-block">
+        <div class="block-header">
+            <h3><i class="fa-brands fa-github"></i> Dernières modifications</h3>
+            <span class="status-live"></span>
+        </div>
+
+        <div id="githubUpdates" class="updates-list">
+
+            <div class="update-item">
+                <div class="update-dot"></div>
+                <div>
+                    <strong>Chargement...</strong>
+                    <p>Connexion à GitHub</p>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Calendar -->
+    <div class="glass-block calendar-block">
+
+        <div class="block-header">
+            <h3><i class="fa-regular fa-calendar"></i> Événements à venir</h3>
+            <button id="btnAddEvent" class="mini-btn">
+                <i class="fa-solid fa-plus"></i>
+            </button>
+        </div>
+
+        <div class="calendar-content">
+            <div id="eventEmpty" class="event-empty">
+                Aucun événement prévu
+            </div>
+            <ul id="eventList"></ul>
+        </div>
+    </div>
+    </div>
+
         <div class="todo-panel">
 
             <h2>Tâches à faire - DWWM</h2>
 
             <div class="todo-box">
-
-                <input
-                    type="text"
-                    id="inputTache"
-                    placeholder="Ajouter une tâche...">
+                <input type="text" id="inputTache" placeholder="Ajouter une tâche...">
                 <button id="btnAjouter">Ajouter</button>
-
             </div>
 
-            <div id="messageVide" class="message-vide">
-                <p>Aucune tâche en vue BG</p>
-            </div>
+            <div id="messageVide" class="message-vide"><p>Aucune tâche en vue BG</p></div>
 
             <ul id="listeTaches"></ul>
         </div>
+        <!-- POPUP EVENT -->
 
+<div class="event-overlay" id="eventOverlay">
+    <div class="event-popup">
+
+        <button class="close-event" id="closeEvent"><i class="fa-solid fa-xmark"></i></button>
+        <h2>Ajouter un événement</h2>
+
+        <div class="event-form">
+            <input type="text" id="eventName" placeholder="Nom de l'événement">
+            <input type="date" id="eventDate">
+            <button id="saveEvent">Ajouter</button>
+        </div>
+    </div>
+
+</div>
     </section>
 
                 <div class="form-overlay" id="formOverlay">

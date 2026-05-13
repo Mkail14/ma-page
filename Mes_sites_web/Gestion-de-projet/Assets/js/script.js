@@ -4,8 +4,10 @@ let modeProduit=false, modeClient=false;
 let idModifProduit=null, idModifClient=null;
 let nextIdP=1, nextIdC=1;
 let prodOuvert=false, clientOuvert=false;
+let modeClientView = "table";
 
 /* ═══════ DOM ═══════ */
+const toggleViewClients = document.querySelector("#toggleViewClients");
 const tbody=document.querySelector('#tbody');
 const formProduit=document.querySelector('#formProduit');
 const nomI=document.querySelector('#nom');
@@ -16,8 +18,10 @@ const messageEl=document.querySelector('#message');
 const submitBtn=document.querySelector('#submitBtn');
 const titreForm=document.querySelector('#titreForm');
 const formIcon=document.querySelector('#formIcon');
+const heroTitle = document.querySelector("#heroTitle");
 
 const tbodyClients=document.querySelector('#tbodyClients');
+const clientsCardGrid=document.querySelector('#clientsCardGrid');
 const formClient=document.querySelector('#formClient');
 const clientPrenom=document.querySelector('#clientPrenom');
 const clientNom=document.querySelector('#clientNom');
@@ -51,6 +55,8 @@ const filterVille=document.querySelector('#filterVille');
 const filterAlpha=document.querySelector('#filterAlpha');
 const menuBtn=document.querySelector('#menuBtn');
 const menuPanel=document.querySelector('#menuPanel');
+const menuOverlay=document.querySelector('#menuOverlay');
+const clientTableWrap=document.querySelector('#clientTableWrap');
 
 /* ═══════ STATS CARD CAROUSEL ═══════ */
 let currentSlide=0;
@@ -63,17 +69,13 @@ function goToSlide(idx){
   slides[currentSlide].classList.add('exit');
   dots[currentSlide].classList.remove('active');
   setTimeout(()=>slides[currentSlide].classList.remove('exit'),600);
-
   currentSlide=idx;
   slides[currentSlide].classList.add('active');
   dots[currentSlide].classList.add('active');
-
-  // Reset progress bar animation
   progressBar.style.animation='none';
   void progressBar.offsetWidth;
   progressBar.style.animation='progressFill 5s linear infinite';
 }
-
 function nextSlide(){goToSlide((currentSlide+1)%slides.length)}
 setInterval(nextSlide,5000);
 
@@ -105,36 +107,47 @@ function updateToolbar(){
 }
 
 /* ═══════ MENU ═══════ */
-menuBtn.addEventListener('click',()=>{menuBtn.classList.toggle('active');menuPanel.classList.toggle('active')});
+menuBtn.addEventListener('click',()=>{
+  menuBtn.classList.toggle('active');
+  menuPanel.classList.toggle('active');
+  menuOverlay.classList.toggle('active');
+});
+menuOverlay.addEventListener('click',()=>{
+  menuBtn.classList.remove('active');
+  menuPanel.classList.remove('active');
+  menuOverlay.classList.remove('active');
+});
 
 /* ═══════ TOGGLE PRODUITS ═══════ */
-toggleProduits.addEventListener('click',()=>{
-  prodOuvert=!prodOuvert;
-  wrapProduits.classList.toggle('open',prodOuvert);
-  chevronProduits.classList.toggle('open',prodOuvert);
-  filterBarProduits.classList.toggle('open',prodOuvert);
-  if(prodOuvert&&clientOuvert){
-    clientOuvert=false;
+toggleProduits.addEventListener('click', () => {
+  prodOuvert = !prodOuvert;
+  wrapProduits.classList.toggle('open', prodOuvert);
+  chevronProduits.classList.toggle('open', prodOuvert);
+  filterBarProduits.classList.toggle('open', prodOuvert);
+  if (prodOuvert && clientOuvert) {
+    clientOuvert = false;
     wrapClients.classList.remove('open');
     chevronClients.classList.remove('open');
     filterBarClients.classList.remove('open');
   }
   updateToolbar();
+  updateHeroTitle();
 });
 
 /* ═══════ TOGGLE CLIENTS ═══════ */
-toggleClients.addEventListener('click',()=>{
-  clientOuvert=!clientOuvert;
-  wrapClients.classList.toggle('open',clientOuvert);
-  chevronClients.classList.toggle('open',clientOuvert);
-  filterBarClients.classList.toggle('open',clientOuvert);
-  if(clientOuvert&&prodOuvert){
-    prodOuvert=false;
+toggleClients.addEventListener('click', () => {
+  clientOuvert = !clientOuvert;
+  wrapClients.classList.toggle('open', clientOuvert);
+  chevronClients.classList.toggle('open', clientOuvert);
+  filterBarClients.classList.toggle('open', clientOuvert);
+  if (clientOuvert && prodOuvert) {
+    prodOuvert = false;
     wrapProduits.classList.remove('open');
     chevronProduits.classList.remove('open');
     filterBarProduits.classList.remove('open');
   }
   updateToolbar();
+  updateHeroTitle();
 });
 
 /* ═══════ BOUTON AJOUTER ═══════ */
@@ -187,7 +200,6 @@ document.querySelector('#resetFilterClients').addEventListener('click',()=>{
   filterVille.value='';filterAlpha.value='';rechercheInput.value='';
   afficherClients();
 });
-
 function updateVilleFilter(){
   const villes=[...new Set(clients.map(c=>c.ville).filter(Boolean))].sort();
   filterVille.innerHTML='<option value="">Toutes les villes</option>';
@@ -205,7 +217,7 @@ function afficherProduits(liste){
   }
   l.forEach(p=>{
     const tr=document.createElement('tr');
-    if(p.stock<10)tr.classList.add('stock-faible');
+    if(p.stock<10) tr.classList.add('stock-faible');
     tr.innerHTML=`
       <td style="color:#555;font-size:13px">${p.id}</td>
       <td style="font-weight:500">${p.nom}</td>
@@ -213,38 +225,113 @@ function afficherProduits(liste){
       <td style="color:#a78bfa;font-weight:600">${Number(p.prix).toLocaleString('fr-FR',{minimumFractionDigits:2,maximumFractionDigits:2})} €</td>
       <td>${p.stock}${p.stock<10?' <span style="color:#ff6b6b;font-size:11px"> ⚠ faible</span>':''}</td>
       <td>
-        <button class="btn-edit" onclick="modifierProduit(${p.id})"><i class="fas fa-pen"></i> Modifier</button>
-        <button class="btn-del" onclick="supprimerProduit(${p.id})"><i class="fas fa-trash"></i></button>
+        <button class="btn-edit" data-id="${p.id}"><i class="fas fa-pen"></i> Edit</button>
+        <button class="btn-del" data-id="${p.id}"><i class="fas fa-trash"></i> Del</button>
       </td>`;
     tbody.appendChild(tr);
   });
 }
 
+/* ═══════ DÉLÉGATION ÉVÉNEMENTS — PRODUITS ═══════ */
+tbody.addEventListener('click', e => {
+  const editBtn = e.target.closest('.btn-edit');
+  const delBtn  = e.target.closest('.btn-del');
+  if(editBtn) modifierProduit(Number(editBtn.dataset.id));
+  if(delBtn)  supprimerProduit(Number(delBtn.dataset.id));
+});
+
 /* ═══════ AFFICHER CLIENTS ═══════ */
 function afficherClients(liste){
-  const l=liste===undefined?clients:liste;
-  updateStats();updateVilleFilter();
-  tbodyClients.innerHTML='';
+  const l = liste === undefined ? clients : liste;
+  updateStats();
+  updateVilleFilter();
+
+  const isCard = modeClientView === "card";
+
+  // Basculer visibilité tableau / grille
+  clientTableWrap.style.display  = isCard ? 'none' : '';
+  clientsCardGrid.style.display  = isCard ? 'grid' : 'none';
+
   if(!l.length){
-    tbodyClients.innerHTML=`<tr class="empty-row"><td colspan="7"><i class="fas fa-users"></i>Aucun client trouvé</td></tr>`;
+    tbodyClients.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:40px;color:#555">Aucun client</td></tr>`;
+    clientsCardGrid.innerHTML = `<p style="color:#555;text-align:center;padding:40px;grid-column:1/-1">Aucun client</p>`;
     return;
   }
+
+  /* ── MODE TABLE ── */
+  tbodyClients.innerHTML = '';
   l.forEach(c=>{
-    const tr=document.createElement('tr');
-    tr.innerHTML=`
-      <td style="color:#555;font-size:13px">${c.id}</td>
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${c.id}</td>
       <td>${c.prenom}</td>
-      <td style="font-weight:500">${c.nom}</td>
-      <td style="color:#7dd3fc">${c.email}</td>
-      <td style="color:#aaa">${c.tel||'—'}</td>
-      <td>${c.ville||'—'}</td>
+      <td>${c.nom}</td>
+      <td>${c.email}</td>
+      <td>${c.tel}</td>
+      <td>${c.ville}</td>
       <td>
-        <button class="btn-edit" onclick="modifierClient(${c.id})" style="background:rgba(14,165,233,.15);color:#7dd3fc;border-color:rgba(14,165,233,.25)"><i class="fas fa-pen"></i> Modifier</button>
-        <button class="btn-del" onclick="supprimerClient(${c.id})"><i class="fas fa-trash"></i></button>
+        <button class="btn-edit" data-id="${c.id}"><i class="fas fa-pen"></i> Edit</button>
+        <button class="btn-del"  data-id="${c.id}"><i class="fas fa-trash"></i> Del</button>
       </td>`;
     tbodyClients.appendChild(tr);
   });
+
+  /* ── MODE CARDS ── */
+  clientsCardGrid.innerHTML = '';
+  l.forEach(c=>{
+    const initials = (c.prenom[0]||'') + (c.nom[0]||'');
+    const card = document.createElement('div');
+    card.className = 'client-card';
+    card.innerHTML = `
+      <div class="client-card-avatar">${initials.toUpperCase()}</div>
+      <div class="client-card-info">
+        <div class="client-card-name">${c.prenom} ${c.nom}</div>
+        <div class="client-card-detail"><i class="fas fa-envelope"></i>${c.email}</div>
+        <div class="client-card-detail"><i class="fas fa-phone"></i>${c.tel || '—'}</div>
+        <div class="client-card-detail"><i class="fas fa-map-marker-alt"></i>${c.ville || '—'}</div>
+      </div>
+      <div class="client-card-actions">
+        <button class="btn-edit" data-id="${c.id}"><i class="fas fa-pen"></i> Edit</button>
+        <button class="btn-del"  data-id="${c.id}"><i class="fas fa-trash"></i> Del</button>
+      </div>`;
+    clientsCardGrid.appendChild(card);
+  });
 }
+
+/* ═══════ DÉLÉGATION ÉVÉNEMENTS — CLIENTS TABLE ═══════ */
+tbodyClients.addEventListener('click', e => {
+  const editBtn = e.target.closest('.btn-edit');
+  const delBtn  = e.target.closest('.btn-del');
+  if(editBtn) modifierClient(Number(editBtn.dataset.id));
+  if(delBtn)  supprimerClient(Number(delBtn.dataset.id));
+});
+
+/* ═══════ DÉLÉGATION ÉVÉNEMENTS — CLIENTS CARDS ═══════ */
+clientsCardGrid.addEventListener('click', e => {
+  const editBtn = e.target.closest('.btn-edit');
+  const delBtn  = e.target.closest('.btn-del');
+  if(editBtn) modifierClient(Number(editBtn.dataset.id));
+  if(delBtn)  supprimerClient(Number(delBtn.dataset.id));
+});
+
+/* ═══════ FETCH CLIENTS ═══════ */
+fetch("https://jsonplaceholder.typicode.com/users")
+  .then(res => res.json())
+  .then(data => {
+    clients = data.map(u => ({
+      id: u.id,
+      prenom: u.name.split(" ")[0] || "",
+      nom: u.name.split(" ")[1] || "",
+      email: u.email,
+      tel: u.phone,
+      ville: u.address.city
+    }));
+    nextIdC = Math.max(...clients.map(c => c.id)) + 1;
+    afficherClients();
+    updateStats();
+    updateVilleFilter();
+  })
+  .catch(error => console.error("Erreur API :", error));
 
 /* ═══════ MODALS PRODUIT ═══════ */
 function ouvrirModalProduit(){
@@ -345,3 +432,26 @@ function modifierClient(id){
 afficherProduits();
 afficherClients();
 updateToolbar();
+
+/* ═══════ TOGGLE VIEW CLIENTS ═══════ */
+toggleViewClients.addEventListener("click", () => {
+  if(modeClientView === "table"){
+    modeClientView = "card";
+    toggleViewClients.innerHTML='<i class="fas fa-table"></i> Mode Tableau';
+  } else {
+    modeClientView = "table";
+    toggleViewClients.innerHTML='<i class="fas fa-th-large"></i> Mode Cards';
+  }
+  afficherClients();
+});
+
+/* ═══════ HERO TITLE ═══════ */
+function updateHeroTitle(){
+  heroTitle.classList.add("change");
+  setTimeout(() => {
+    if(prodOuvert) heroTitle.textContent = "Gérez vos produits";
+    else if(clientOuvert) heroTitle.textContent = "Gérez vos clients";
+    else heroTitle.textContent = "Gestion";
+    heroTitle.classList.remove("change");
+  }, 150);
+}
