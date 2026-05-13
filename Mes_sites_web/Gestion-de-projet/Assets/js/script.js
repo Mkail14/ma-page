@@ -225,8 +225,8 @@ function afficherProduits(liste){
       <td style="color:#a78bfa;font-weight:600">${Number(p.prix).toLocaleString('fr-FR',{minimumFractionDigits:2,maximumFractionDigits:2})} €</td>
       <td>${p.stock}${p.stock<10?' <span style="color:#ff6b6b;font-size:11px"> ⚠ faible</span>':''}</td>
       <td>
-        <button class="btn-edit" data-id="${p.id}"><i class="fas fa-pen"></i> Edit</button>
-        <button class="btn-del" data-id="${p.id}"><i class="fas fa-trash"></i> Del</button>
+        <button class="btn-edit" data-id="${p.id}"><i class="fas fa-pen"></i>Modifier</button>
+        <button class="btn-del" data-id="${p.id}"><i class="fas fa-trash"></i>Supprimer</button>
       </td>`;
     tbody.appendChild(tr);
   });
@@ -270,8 +270,8 @@ function afficherClients(liste){
       <td>${c.tel}</td>
       <td>${c.ville}</td>
       <td>
-        <button class="btn-edit" data-id="${c.id}"><i class="fas fa-pen"></i> Edit</button>
-        <button class="btn-del"  data-id="${c.id}"><i class="fas fa-trash"></i> Del</button>
+        <button class="btn-edit" data-id="${c.id}"><i class="fas fa-pen"></i>Modifier</button>
+        <button class="btn-del"  data-id="${c.id}"><i class="fas fa-trash"></i>Supprimer</button>
       </td>`;
     tbodyClients.appendChild(tr);
   });
@@ -291,8 +291,8 @@ function afficherClients(liste){
         <div class="client-card-detail"><i class="fas fa-map-marker-alt"></i>${c.ville || '—'}</div>
       </div>
       <div class="client-card-actions">
-        <button class="btn-edit" data-id="${c.id}"><i class="fas fa-pen"></i> Edit</button>
-        <button class="btn-del"  data-id="${c.id}"><i class="fas fa-trash"></i> Del</button>
+        <button class="btn-edit" data-id="${c.id}"><i class="fas fa-pen"></i>Modifier</button>
+        <button class="btn-del"  data-id="${c.id}"><i class="fas fa-trash"></i>Suprimer</button>
       </div>`;
     clientsCardGrid.appendChild(card);
   });
