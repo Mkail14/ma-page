@@ -1,404 +1,505 @@
-// =============================================
-// SUPABASE CONFIG
-// =============================================
+// ================= SUPABASE INIT =================
 const SUPABASE_URL = "https://dxtgwpoeclgyldoymvpl.supabase.co";
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR4dGd3cG9lY2xneWxkb3ltdnBsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkyMzE1NTMsImV4cCI6MjA5NDgwNzU1M30.dkfyncgnpSprtl86BK6ztILLFYEahiODENIn-h9kvDI";
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-// =============================================
-// MENU
-// =============================================
-const menuBtn = document.getElementById("menuBtn");
-const menuPanel = document.getElementById("menuPanel");
+let db = null;
+
+function initSupabase() {
+    if (window.supabase && window.supabase.createClient) {
+        db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        return true;
+    }
+    return false;
+}
+initSupabase();
+
+// ================= MENU =================
+const menuBtn     = document.getElementById("menuBtn");
+const menuPanel   = document.getElementById("menuPanel");
 const menuOverlay = document.getElementById("menuOverlay");
 
-if (menuBtn) {
-  menuBtn.addEventListener("click", () => {
-    menuPanel.classList.toggle("open");
-    menuOverlay.classList.toggle("active");
-  });
-}
-if (menuOverlay) {
-  menuOverlay.addEventListener("click", () => {
-    menuPanel.classList.remove("open");
-    menuOverlay.classList.remove("active");
-  });
+if (menuBtn && menuPanel && menuOverlay) {
+    menuBtn.addEventListener("click", () => {
+        menuBtn.classList.toggle("active");
+        menuPanel.classList.toggle("active");
+        menuOverlay.classList.toggle("active");
+    });
+    menuOverlay.addEventListener("click", () => {
+        menuBtn.classList.remove("active");
+        menuPanel.classList.remove("active");
+        menuOverlay.classList.remove("active");
+    });
 }
 
-// =============================================
-// POPUP INSCRIPTION / CONNEXION
-// =============================================
-const openFormBtn = document.getElementById("openFormBtn");
+// ================= TODO LIST =================
+const inputTache  = document.getElementById("inputTache");
+const btnAjouter  = document.getElementById("btnAjouter");
+const liste       = document.getElementById("listeTaches");
+const messageVide = document.getElementById("messageVide");
+let taches = [];
+
+function chargerTachesLocal() {
+    try { taches = JSON.parse(localStorage.getItem("taches") || "[]"); }
+    catch(e) { taches = []; }
+    rendreListeTaches();
+}
+
+function sauvegarderTaches() {
+    try { localStorage.setItem("taches", JSON.stringify(taches)); } catch(e) {}
+}
+
+function ajouterTache() {
+    const texte = inputTache ? inputTache.value.trim() : "";
+    if (!texte) return;
+    taches.unshift({ id: Date.now(), description: texte, completed: false });
+    sauvegarderTaches();
+    rendreListeTaches();
+    if (inputTache) inputTache.value = "";
+}
+
+function marquerTacheTerminee(id) {
+    const t = taches.find(t => t.id === id);
+    if (t) { t.completed = !t.completed; sauvegarderTaches(); rendreListeTaches(); }
+}
+
+function supprimerTache(id) {
+    taches = taches.filter(t => t.id !== id);
+    sauvegarderTaches();
+    rendreListeTaches();
+}
+
+function rendreListeTaches() {
+    if (!liste) return;
+    liste.innerHTML = "";
+    if (taches.length === 0) {
+        if (messageVide) messageVide.style.display = "flex";
+        return;
+    }
+    if (messageVide) messageVide.style.display = "none";
+    taches.forEach(tache => {
+        const li = document.createElement("li");
+        li.classList.add("tache");
+        if (tache.completed) li.classList.add("termine");
+        const span = document.createElement("span");
+        span.textContent = tache.description;
+        if (tache.completed) span.classList.add("termine");
+        const actions = document.createElement("div");
+        actions.classList.add("actions");
+        const btnDone = document.createElement("button");
+        btnDone.textContent = "OK";
+        btnDone.onclick = () => marquerTacheTerminee(tache.id);
+        const btnDelete = document.createElement("button");
+        btnDelete.textContent = "Supprimer";
+        btnDelete.onclick = () => supprimerTache(tache.id);
+        actions.appendChild(btnDone);
+        actions.appendChild(btnDelete);
+        li.appendChild(span);
+        li.appendChild(actions);
+        liste.appendChild(li);
+    });
+}
+
+if (btnAjouter) btnAjouter.addEventListener("click", ajouterTache);
+if (inputTache) inputTache.addEventListener("keydown", e => { if (e.key === "Enter") ajouterTache(); });
+chargerTachesLocal();
+
+// ================= FORM OVERLAY OPEN/CLOSE =================
+const formOverlay  = document.getElementById("formOverlay");
+const openFormBtn  = document.getElementById("openFormBtn");
 const closeFormBtn = document.getElementById("closeFormBtn");
-const formOverlay = document.getElementById("formOverlay");
 
-if (openFormBtn) openFormBtn.addEventListener("click", () => formOverlay.classList.add("active"));
-if (closeFormBtn) closeFormBtn.addEventListener("click", () => formOverlay.classList.remove("active"));
+if (openFormBtn)  openFormBtn.addEventListener("click",  () => formOverlay.classList.add("active"));
+if (closeFormBtn) closeFormBtn.addEventListener("click", () => fermerPopup());
+if (formOverlay)  formOverlay.addEventListener("click",  e => { if (e.target === formOverlay) fermerPopup(); });
 
-// Basculer entre inscription et connexion
-const loginLink = document.querySelector(".login-link a");
+function fermerPopup() {
+    formOverlay.classList.remove("active");
+}
+
+function resetForm() {
+    const form     = document.querySelector(".custom-form");
+    const text1    = document.querySelector(".text1");
+    const subtitle = document.querySelector(".form-subtitle");
+    const msg      = document.getElementById("messageConfirmation");
+    const loginLnk = document.querySelector(".login-link");
+
+    if (form)     { form.style.display = ""; form.reset(); }
+    if (text1)    { text1.style.display = ""; text1.textContent = modeConnexion ? "Se connecter" : "Créer un compte"; }
+    if (subtitle) { subtitle.style.display = ""; }
+    if (msg)      { msg.style.display = "none"; msg.innerHTML = ""; }
+    if (loginLnk) loginLnk.style.display = "";
+    if (btnInscription) {
+        btnInscription.disabled = true;
+        btnInscription.classList.remove("btn-active");
+        btnInscription.textContent = modeConnexion ? "Se connecter" : "Créer un compte";
+    }
+}
+
+// ================= MODE CONNEXION / INSCRIPTION =================
 let modeConnexion = false;
+const loginLink   = document.querySelector(".login-link a");
+
+// Champs visibles seulement en mode inscription
+const champsInscription = ["nom", "prenom", "age", "formation", "confirmation"];
+
+function appliquerMode() {
+    const text1     = document.querySelector(".text1");
+    const subtitle  = document.querySelector(".form-subtitle");
+    const formRows  = document.querySelectorAll(".form-row");
+    const robotRow  = document.querySelector(".content");
+
+    if (modeConnexion) {
+        if (text1)    text1.textContent    = "Se connecter";
+        if (subtitle) subtitle.textContent = "Connecte-toi à ton compte.";
+        if (loginLink) loginLink.textContent = "Pas encore de compte ? S'inscrire";
+        if (btnInscription) btnInscription.textContent = "Se connecter";
+        // Cacher les champs inutiles en mode connexion
+        formRows.forEach(r => r.style.display = "none");
+        if (robotRow) robotRow.style.display = "none";
+    } else {
+        if (text1)    text1.textContent    = "Créer un compte";
+        if (subtitle) subtitle.textContent = "Rejoins et accède à mes projets web UI.";
+        if (loginLink) loginLink.textContent = "Vous avez déjà un compte ?";
+        if (btnInscription) btnInscription.textContent = "Créer un compte";
+        formRows.forEach(r => r.style.display = "");
+        if (robotRow) robotRow.style.display = "";
+    }
+
+    // Vider les champs et recalculer
+    document.querySelectorAll(".custom-form input").forEach(i => i.value = "");
+    const ch1 = document.getElementById("ch1");
+    if (ch1) ch1.checked = false;
+    checkForm();
+}
 
 if (loginLink) {
-  loginLink.addEventListener("click", (e) => {
-    e.preventDefault();
-    modeConnexion = !modeConnexion;
-    basculerMode();
-  });
-}
-
-function basculerMode() {
-  const titre = document.querySelector(".text1");
-  const subtitle = document.querySelector(".form-subtitle");
-  const btnInscription = document.getElementById("btnInscription");
-  const loginLink = document.querySelector(".login-link a");
-  const champSupp = document.querySelectorAll(".form-row, .input-group-custom:not(:nth-child(3)), .content");
-
-  // Champs uniquement inscription
-  const champsInscriptionOnly = document.querySelectorAll(
-    "#nom, #prenom, #age, #formation, #confirmation, #robotCheck"
-  );
-  const rowsToHide = document.querySelectorAll(".form-row");
-  const checkboxRow = document.querySelector(".content");
-
-  if (modeConnexion) {
-    titre.textContent = "Se connecter";
-    subtitle.textContent = "Connecte-toi à ton compte.";
-    btnInscription.textContent = "Se connecter";
-    loginLink.textContent = "Pas encore de compte ? S'inscrire";
-    rowsToHide.forEach(r => r.style.display = "none");
-    if (checkboxRow) checkboxRow.style.display = "none";
-    document.getElementById("confirmation").closest(".input-group-custom").style.display = "none";
-  } else {
-    titre.textContent = "Créer un compte";
-    subtitle.textContent = "Rejoins et accède à mes projets web UI.";
-    btnInscription.textContent = "Créer un compte";
-    loginLink.textContent = "Vous avez déjà un compte ?";
-    rowsToHide.forEach(r => r.style.display = "");
-    if (checkboxRow) checkboxRow.style.display = "";
-  }
-  viderFormulaire();
-}
-
-function viderFormulaire() {
-  ["nom", "prenom", "email", "motdepasse", "confirmation", "age", "formation"].forEach(id => {
-    const el = document.getElementById(id);
-    if (el) el.value = "";
-  });
-  const ch1 = document.getElementById("ch1");
-  if (ch1) ch1.checked = false;
-  document.getElementById("btnInscription").disabled = true;
-  const msg = document.getElementById("messageConfirmation");
-  if (msg) { msg.textContent = ""; msg.className = "message-confirmation"; }
-}
-
-// =============================================
-// VALIDATION EMAIL
-// =============================================
-function verifierEmail() {
-  const email = document.getElementById("email").value;
-  const erreur = document.getElementById("erreurEmail");
-  const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (!regex.test(email)) {
-    erreur.textContent = "Email invalide";
-    erreur.style.color = "red";
-    erreur.style.fontSize = "0.8rem";
-  } else {
-    erreur.textContent = "";
-  }
-  verifierFormulaire();
-}
-window.verifierEmail = verifierEmail;
-
-// =============================================
-// VALIDATION MOT DE PASSE
-// =============================================
-function verifierMdp() {
-  const mdp = document.getElementById("motdepasse").value;
-  const conf = document.getElementById("confirmation").value;
-  const erreur = document.getElementById("erreurMdp");
-  if (modeConnexion) { verifierFormulaire(); return; }
-  if (mdp.length < 6) {
-    erreur.textContent = "Minimum 6 caractères";
-    erreur.style.color = "red";
-    erreur.style.fontSize = "0.8rem";
-  } else if (conf && mdp !== conf) {
-    erreur.textContent = "Les mots de passe ne correspondent pas";
-    erreur.style.color = "red";
-    erreur.style.fontSize = "0.8rem";
-  } else {
-    erreur.textContent = "";
-  }
-  verifierFormulaire();
-}
-window.verifierMdp = verifierMdp;
-
-// =============================================
-// ACTIVATION BOUTON
-// =============================================
-function verifierFormulaire() {
-  const btn = document.getElementById("btnInscription");
-  const email = document.getElementById("email").value;
-  const mdp = document.getElementById("motdepasse").value;
-  const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-  if (modeConnexion) {
-    btn.disabled = !(regex.test(email) && mdp.length >= 6);
-    return;
-  }
-
-  const nom = document.getElementById("nom").value.trim();
-  const prenom = document.getElementById("prenom").value.trim();
-  const conf = document.getElementById("confirmation").value;
-  const ch1 = document.getElementById("ch1");
-  const robotCheck = ch1 ? ch1.checked : false;
-
-  btn.disabled = !(
-    nom && prenom &&
-    regex.test(email) &&
-    mdp.length >= 6 &&
-    mdp === conf &&
-    robotCheck
-  );
-}
-
-// Activer vérification sur tous les champs
-["nom", "prenom", "age", "formation"].forEach(id => {
-  const el = document.getElementById(id);
-  if (el) el.addEventListener("input", verifierFormulaire);
-});
-const ch1 = document.getElementById("ch1");
-if (ch1) ch1.addEventListener("change", verifierFormulaire);
-
-// =============================================
-// INSCRIPTION / CONNEXION SUPABASE
-// =============================================
-const btnInscription = document.getElementById("btnInscription");
-if (btnInscription) {
-  btnInscription.addEventListener("click", async () => {
-    if (modeConnexion) {
-      await connecterUtilisateur();
-    } else {
-      await inscrireUtilisateur();
-    }
-  });
-}
-
-async function inscrireUtilisateur() {
-  const nom = document.getElementById("nom").value.trim();
-  const prenom = document.getElementById("prenom").value.trim();
-  const email = document.getElementById("email").value.trim();
-  const mdp = document.getElementById("motdepasse").value;
-  const age = parseInt(document.getElementById("age").value) || null;
-  const formation = document.getElementById("formation").value.trim();
-  const msg = document.getElementById("messageConfirmation");
-  const btn = document.getElementById("btnInscription");
-
-  btn.disabled = true;
-  btn.textContent = "Création en cours...";
-
-  try {
-    // 1. Créer le compte auth Supabase
-    const { data: authData, error: authError } = await supabase.auth.signUp({
-      email,
-      password: mdp,
+    loginLink.addEventListener("click", e => {
+        e.preventDefault();
+        modeConnexion = !modeConnexion;
+        appliquerMode();
     });
-
-    if (authError) throw authError;
-
-    // 2. Insérer dans la table inscriptions
-    const { error: dbError } = await supabase.from("inscriptions").insert([
-      { nom, prenom, email, age, formation }
-    ]);
-
-    if (dbError) throw dbError;
-
-    msg.textContent = "✅ Compte créé avec succès ! Vérifie ton email pour confirmer ton inscription.";
-    msg.style.color = "#4ade80";
-    msg.style.fontWeight = "600";
-    msg.style.marginTop = "1rem";
-    viderFormulaire();
-    btn.textContent = "Créer un compte";
-  } catch (err) {
-    msg.textContent = "❌ Erreur : " + (err.message || "Une erreur est survenue");
-    msg.style.color = "#f87171";
-    msg.style.fontWeight = "600";
-    msg.style.marginTop = "1rem";
-    btn.disabled = false;
-    btn.textContent = "Créer un compte";
-  }
 }
 
-async function connecterUtilisateur() {
-  const email = document.getElementById("email").value.trim();
-  const mdp = document.getElementById("motdepasse").value;
-  const msg = document.getElementById("messageConfirmation");
-  const btn = document.getElementById("btnInscription");
+// ================= FORM ELEMENTS =================
+const btnInscription = document.getElementById("btnInscription");
+const nomInput       = document.getElementById("nom");
+const prenomInput    = document.getElementById("prenom");
+const emailInput     = document.getElementById("email");
+const ageInput       = document.getElementById("age");
+const formationInput = document.getElementById("formation");
+const mdp            = document.getElementById("motdepasse");
+const confirmMdp     = document.getElementById("confirmation");
+const checkbox       = document.getElementById("ch1");
+const errEmail       = document.getElementById("erreurEmail");
+const errMdp         = document.getElementById("erreurMdp");
 
-  btn.disabled = true;
-  btn.textContent = "Connexion en cours...";
+if (btnInscription) btnInscription.disabled = true;
 
-  try {
-    const { data, error } = await supabase.auth.signInWithPassword({ email, password: mdp });
-    if (error) throw error;
-
-    msg.textContent = "✅ Connecté avec succès ! Bienvenue " + (data.user?.email || "") + " 👋";
-    msg.style.color = "#4ade80";
-    msg.style.fontWeight = "600";
-    msg.style.marginTop = "1rem";
-
-    // Mettre à jour le bouton nav
-    const navBtn = document.getElementById("openFormBtn");
-    if (navBtn) navBtn.textContent = "Mon compte ✓";
-
-    setTimeout(() => formOverlay.classList.remove("active"), 2000);
-    btn.textContent = "Se connecter";
-  } catch (err) {
-    msg.textContent = "❌ " + (err.message === "Invalid login credentials"
-      ? "Email ou mot de passe incorrect"
-      : err.message || "Erreur de connexion");
-    msg.style.color = "#f87171";
-    msg.style.fontWeight = "600";
-    msg.style.marginTop = "1rem";
-    btn.disabled = false;
-    btn.textContent = "Se connecter";
-  }
+// ================= VALIDATION EMAIL =================
+function verifierEmail() {
+    if (!emailInput || !emailInput.value) { if (errEmail) errEmail.textContent = ""; checkForm(); return false; }
+    const ok = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailInput.value);
+    if (errEmail) {
+        errEmail.textContent = ok ? "Email valide ✓" : "Email invalide";
+        errEmail.style.color = ok ? "#22c55e" : "#ff4d4d";
+    }
+    checkForm();
+    return ok;
 }
 
-// =============================================
-// TODO LIST
-// =============================================
-const inputTache = document.getElementById("inputTache");
-const btnAjouter = document.getElementById("btnAjouter");
-const listeTaches = document.getElementById("listeTaches");
-const messageVide = document.getElementById("messageVide");
+// ================= VALIDATION MOT DE PASSE =================
+function verifierMdp() {
+    if (!mdp) { checkForm(); return false; }
+    const a = mdp.value;
 
-let taches = JSON.parse(localStorage.getItem("taches")) || [];
+    // En mode connexion, pas de confirmation
+    if (modeConnexion) {
+        if (errMdp) errMdp.textContent = "";
+        checkForm();
+        return a.length >= 6;
+    }
 
-function sauvegarder() {
-  localStorage.setItem("taches", JSON.stringify(taches));
+    if (!confirmMdp) { checkForm(); return false; }
+    const b = confirmMdp.value;
+
+    if (!a) { if (errMdp) errMdp.textContent = ""; checkForm(); return false; }
+    if (a.length < 6) {
+        if (errMdp) { errMdp.textContent = "6 caractères minimum"; errMdp.style.color = "#ff4d4d"; }
+        checkForm(); return false;
+    }
+    if (b && a !== b) {
+        if (errMdp) { errMdp.textContent = "Mots de passe différents"; errMdp.style.color = "#ff4d4d"; }
+        checkForm(); return false;
+    }
+    if (a === b && b.length > 0) {
+        if (errMdp) { errMdp.textContent = "Mots de passe valides ✓"; errMdp.style.color = "#22c55e"; }
+    } else {
+        if (errMdp) errMdp.textContent = "";
+    }
+    checkForm();
+    return a === b && a.length >= 6;
 }
 
-function afficherTaches() {
-  listeTaches.innerHTML = "";
-  messageVide.style.display = taches.length === 0 ? "block" : "none";
-  taches.forEach((tache, index) => {
-    const li = document.createElement("li");
-    li.className = tache.fait ? "fait" : "";
-    li.innerHTML = `
-      <span onclick="toggleTache(${index})">${tache.texte}</span>
-      <button onclick="supprimerTache(${index})"><i class="fa-solid fa-trash"></i></button>
-    `;
-    listeTaches.appendChild(li);
-  });
+// ================= ACTIVATION BOUTON =================
+function checkForm() {
+    if (!btnInscription) return;
+
+    const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailInput?.value || "");
+    const mdpVal  = mdp?.value || "";
+
+    let ok = false;
+
+    if (modeConnexion) {
+        ok = emailOk && mdpVal.length >= 6;
+    } else {
+        const nomOk      = nomInput?.value.trim().length > 0;
+        const prenomOk   = prenomInput?.value.trim().length > 0;
+        const ageOk      = ageInput?.value.trim().length > 0;
+        const formOk     = formationInput?.value.trim().length > 0;
+        const confOk     = confirmMdp?.value === mdpVal && mdpVal.length >= 6;
+        const robotOk    = checkbox?.checked || false;
+        ok = nomOk && prenomOk && emailOk && ageOk && formOk && confOk && robotOk;
+    }
+
+    btnInscription.disabled = !ok;
+    btnInscription.classList.toggle("btn-active", ok);
 }
 
-window.toggleTache = function(index) {
-  taches[index].fait = !taches[index].fait;
-  sauvegarder();
-  afficherTaches();
-};
+document.querySelectorAll(".custom-form input").forEach(i => i.addEventListener("input", checkForm));
+if (checkbox) checkbox.addEventListener("change", checkForm);
 
-window.supprimerTache = function(index) {
-  taches.splice(index, 1);
-  sauvegarder();
-  afficherTaches();
-};
+// ================= SOUMISSION =================
+if (btnInscription) {
+    btnInscription.addEventListener("click", async () => {
+        if (btnInscription.disabled) return;
+        if (!db) initSupabase();
+        if (!db) { afficherErreur("Connexion impossible, réessaie."); return; }
 
-if (btnAjouter) {
-  btnAjouter.addEventListener("click", () => {
-    const texte = inputTache.value.trim();
-    if (!texte) return;
-    taches.push({ texte, fait: false });
-    sauvegarder();
-    afficherTaches();
-    inputTache.value = "";
-  });
+        if (modeConnexion) {
+            await seConnecter();
+        } else {
+            await sInscrire();
+        }
+    });
 }
 
-if (inputTache) {
-  inputTache.addEventListener("keydown", (e) => {
-    if (e.key === "Enter") btnAjouter.click();
-  });
+// ================= INSCRIPTION =================
+async function sInscrire() {
+    btnInscription.textContent = "Création en cours...";
+    btnInscription.disabled    = true;
+
+    const email    = emailInput.value.trim();
+    const password = mdp.value;
+    const nom      = nomInput.value.trim();
+    const prenom   = prenomInput.value.trim();
+    const age      = parseInt(ageInput.value) || null;
+    const formation = formationInput.value.trim();
+
+    try {
+        // 1. Créer le compte Auth Supabase
+        const { data: authData, error: authError } = await db.auth.signUp({ email, password });
+        if (authError) throw authError;
+
+        // 2. Insérer dans la table inscriptions
+        const { error: dbError } = await db.from("inscriptions").insert([{ nom, prenom, email, age, formation }]);
+        if (dbError) console.warn("DB insert warn:", dbError.message); // non bloquant
+
+        afficherSucces(nom, prenom, true);
+
+    } catch(err) {
+        let msg = err.message || "Une erreur est survenue.";
+        if (msg.includes("already registered") || msg.includes("already been registered")) {
+            msg = "Cet email est déjà utilisé.";
+        }
+        afficherErreur(msg);
+        btnInscription.textContent = "Créer un compte";
+        btnInscription.disabled    = false;
+    }
 }
 
-afficherTaches();
+// ================= CONNEXION =================
+async function seConnecter() {
+    btnInscription.textContent = "Connexion en cours...";
+    btnInscription.disabled    = true;
 
-// =============================================
-// CALENDRIER / ÉVÉNEMENTS
-// =============================================
-const btnAddEvent = document.getElementById("btnAddEvent");
-const closeEvent = document.getElementById("closeEvent");
-const saveEvent = document.getElementById("saveEvent");
-const eventOverlay = document.getElementById("eventOverlay");
-const eventList = document.getElementById("eventList");
-const eventEmpty = document.getElementById("eventEmpty");
+    const email    = emailInput.value.trim();
+    const password = mdp.value;
 
-let events = JSON.parse(localStorage.getItem("events")) || [];
+    try {
+        const { data, error } = await db.auth.signInWithPassword({ email, password });
+        if (error) throw error;
 
-function sauvegarderEvents() {
-  localStorage.setItem("events", JSON.stringify(events));
+        // Récupérer le prénom depuis la table inscriptions
+        const { data: profil } = await db.from("inscriptions").select("nom, prenom").eq("email", email).single();
+        const nom    = profil?.nom    || "";
+        const prenom = profil?.prenom || "";
+
+        afficherSucces(nom, prenom, false);
+
+        // Mettre à jour le bouton nav
+        const navBtn = document.getElementById("openFormBtn");
+        if (navBtn) navBtn.textContent = "Mon compte ✓";
+
+    } catch(err) {
+        let msg = err.message || "Erreur de connexion.";
+        if (msg.includes("Invalid login credentials")) msg = "Email ou mot de passe incorrect.";
+        if (msg.includes("Email not confirmed"))       msg = "Confirme ton email avant de te connecter.";
+        afficherErreur(msg);
+        btnInscription.textContent = "Se connecter";
+        btnInscription.disabled    = false;
+    }
 }
 
-function afficherEvents() {
-  eventList.innerHTML = "";
-  eventEmpty.style.display = events.length === 0 ? "block" : "none";
-  events.sort((a, b) => new Date(a.date) - new Date(b.date));
-  events.forEach((ev, i) => {
-    const li = document.createElement("li");
-    li.innerHTML = `
-      <span>${ev.nom} — <small>${ev.date}</small></span>
-      <button onclick="supprimerEvent(${i})"><i class="fa-solid fa-xmark"></i></button>
-    `;
-    eventList.appendChild(li);
-  });
+// ================= UI FEEDBACK =================
+function afficherSucces(nom, prenom, isInscription) {
+    const form     = document.querySelector(".custom-form");
+    const text1    = document.querySelector(".text1");
+    const subtitle = document.querySelector(".form-subtitle");
+    const loginLnk = document.querySelector(".login-link");
+    const msg      = document.getElementById("messageConfirmation");
+
+    if (form)     form.style.display     = "none";
+    if (text1)    text1.style.display    = "none";
+    if (subtitle) subtitle.style.display = "none";
+    if (loginLnk) loginLnk.style.display = "none";
+
+    if (msg) {
+        msg.style.display = "flex";
+        msg.innerHTML = `
+            <div class="success-box">
+                <i class="fa-solid fa-circle-check" style="color:#22c55e;font-size:70px;margin-bottom:18px"></i>
+                <h3>${isInscription ? "Inscription validée !" : "Connexion réussie !"}</h3>
+                <p>Bienvenue ${nom} ${prenom} !</p>
+                <span style="color:#9f9fa9;font-size:13px">
+                    ${isInscription ? "Vérifie ton email pour confirmer ton compte." : "Contenu débloqué ✓"}
+                </span>
+            </div>`;
+    }
+
+    // Fermer automatiquement après 3s si connexion
+    if (!isInscription) {
+        setTimeout(() => {
+            fermerPopup();
+            resetForm();
+            modeConnexion = false;
+            appliquerMode();
+        }, 2500);
+    }
 }
 
-window.supprimerEvent = function(i) {
-  events.splice(i, 1);
-  sauvegarderEvents();
-  afficherEvents();
-};
-
-if (btnAddEvent) btnAddEvent.addEventListener("click", () => eventOverlay.classList.add("active"));
-if (closeEvent) closeEvent.addEventListener("click", () => eventOverlay.classList.remove("active"));
-if (saveEvent) {
-  saveEvent.addEventListener("click", () => {
-    const nom = document.getElementById("eventName").value.trim();
-    const date = document.getElementById("eventDate").value;
-    if (!nom || !date) return;
-    events.push({ nom, date });
-    sauvegarderEvents();
-    afficherEvents();
-    document.getElementById("eventName").value = "";
-    document.getElementById("eventDate").value = "";
-    eventOverlay.classList.remove("active");
-  });
+function afficherErreur(msg) {
+    const msgEl = document.getElementById("messageConfirmation");
+    if (!msgEl) return;
+    msgEl.style.display = "flex";
+    msgEl.innerHTML = `
+        <div class="success-box">
+            <i class="fa-solid fa-circle-xmark" style="color:#ef4444;font-size:60px;margin-bottom:14px"></i>
+            <h3 style="color:#ef4444">Erreur</h3>
+            <p>${msg}</p>
+            <button onclick="resetForm()" style="margin-top:14px;padding:10px 22px;border:none;border-radius:12px;background:#7c3aed;color:white;cursor:pointer;font-size:14px">Réessayer</button>
+        </div>`;
 }
 
-afficherEvents();
+// ================= GITHUB API =================
+const githubUpdates = document.getElementById("githubUpdates");
 
-// =============================================
-// GITHUB ACTIVITY
-// =============================================
 async function chargerGithub() {
-  const container = document.getElementById("githubUpdates");
-  try {
-    const res = await fetch("https://api.github.com/repos/Mkail14/ma-page/commits?per_page=4");
-    const commits = await res.json();
-    if (!Array.isArray(commits)) throw new Error("Erreur API");
-    container.innerHTML = commits.map(c => `
-      <div class="update-item">
-        <div class="update-dot"></div>
-        <div>
-          <strong>${c.commit.message}</strong>
-          <p>${new Date(c.commit.author.date).toLocaleDateString("fr-FR")}</p>
-        </div>
-      </div>
-    `).join("");
-  } catch {
-    container.innerHTML = `<div class="update-item"><div class="update-dot"></div><div><strong>Impossible de charger</strong><p>Vérifie ta connexion</p></div></div>`;
-  }
+    if (!githubUpdates) return;
+    try {
+        const response = await fetch("https://api.github.com/repos/Mkail14/ma-page/commits?per_page=5");
+        if (!response.ok) throw new Error(response.status);
+        const data = await response.json();
+        if (!Array.isArray(data) || !data.length) {
+            githubUpdates.innerHTML = `<div class="event-empty">Aucun commit trouvé</div>`;
+            return;
+        }
+        githubUpdates.innerHTML = "";
+        data.slice(0, 5).forEach(commit => {
+            const item = document.createElement("div");
+            item.classList.add("update-item");
+            item.innerHTML = `
+                <div class="update-dot"></div>
+                <div>
+                    <strong>${commit.commit.message.split('\n')[0]}</strong>
+                    <p>${commit.commit.author.name} • ${new Date(commit.commit.author.date).toLocaleDateString("fr-FR")}</p>
+                </div>`;
+            githubUpdates.appendChild(item);
+        });
+    } catch(err) {
+        githubUpdates.innerHTML = `<div class="event-empty">Impossible de charger GitHub</div>`;
+    }
+}
+chargerGithub();
+
+// ================= CALENDAR =================
+const btnAddEvent  = document.getElementById("btnAddEvent");
+const eventList    = document.getElementById("eventList");
+const eventEmpty   = document.getElementById("eventEmpty");
+const eventOverlay = document.getElementById("eventOverlay");
+const closeEvent   = document.getElementById("closeEvent");
+const eventName    = document.getElementById("eventName");
+const eventDate    = document.getElementById("eventDate");
+const saveEvent    = document.getElementById("saveEvent");
+let events = [];
+
+function chargerEvenementsLocal() {
+    try { events = JSON.parse(localStorage.getItem("evenements") || "[]"); }
+    catch(e) { events = []; }
+    rendreEvenements();
 }
 
-chargerGithub();
+function sauvegarderEvenements() {
+    try { localStorage.setItem("evenements", JSON.stringify(events)); } catch(e) {}
+}
+
+function rendreEvenements() {
+    if (!eventList) return;
+    eventList.innerHTML = "";
+    if (events.length === 0) { if (eventEmpty) eventEmpty.style.display = "flex"; return; }
+    if (eventEmpty) eventEmpty.style.display = "none";
+    events.forEach(event => {
+        const li = document.createElement("li");
+        li.classList.add("event-item");
+        li.innerHTML = `
+            <div>
+                <strong>${event.nom}</strong>
+                <div class="event-date">${event.date}</div>
+            </div>
+            <button class="btn-delete-event" style="border:none;background:transparent;color:#ef4444;cursor:pointer;font-size:16px">
+                <i class="fa-solid fa-trash"></i>
+            </button>`;
+        li.querySelector(".btn-delete-event").onclick = () => supprimerEvent(event.id);
+        eventList.appendChild(li);
+    });
+}
+
+if (btnAddEvent)  btnAddEvent.addEventListener("click",  () => eventOverlay.classList.add("active"));
+if (closeEvent)   closeEvent.addEventListener("click",   () => eventOverlay.classList.remove("active"));
+if (eventOverlay) eventOverlay.addEventListener("click", e => { if (e.target === eventOverlay) eventOverlay.classList.remove("active"); });
+
+if (saveEvent) {
+    saveEvent.addEventListener("click", () => {
+        const nom  = eventName?.value.trim();
+        const date = eventDate?.value;
+        if (!nom || !date) return;
+        events.unshift({ id: Date.now(), nom, date });
+        sauvegarderEvenements();
+        rendreEvenements();
+        if (eventName) eventName.value = "";
+        if (eventDate) eventDate.value = "";
+        eventOverlay.classList.remove("active");
+    });
+}
+
+function supprimerEvent(id) {
+    events = events.filter(e => e.id !== id);
+    sauvegarderEvenements();
+    rendreEvenements();
+}
+
+chargerEvenementsLocal();
+
+// ================= EXPOSE GLOBAL =================
+window.verifierEmail = verifierEmail;
+window.verifierMdp   = verifierMdp;
+window.resetForm     = resetForm;
