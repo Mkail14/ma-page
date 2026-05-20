@@ -2,16 +2,45 @@
 const SUPABASE_URL = "https://dxtgwpoeclgyldoymvpl.supabase.co";
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR4dGd3cG9lY2xneWxkb3ltdnBsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkyMzE1NTMsImV4cCI6MjA5NDgwNzU1M30.dkfyncgnpSprtl86BK6ztILLFYEahiODENIn-h9kvDI";
 
-let db = null;
+const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-function initSupabase() {
-    if (window.supabase && window.supabase.createClient) {
-        db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-        return true;
-    }
-    return false;
+// ================= HELPERS =================
+// "RABEMANANJARA" → "R"
+function initialeNom(nom) {
+    return nom ? nom.trim()[0].toUpperCase() : "";
 }
-initSupabase();
+
+// Met à jour le h1 de la page
+function setBonjour(nom, prenom) {
+    const h1 = document.querySelector(".hero-side h1");
+    if (!h1) return;
+    if (nom && prenom) {
+        h1.textContent = `Bonjour ${initialeNom(nom)}.${prenom.trim()}`;
+    } else {
+        h1.textContent = "Bonjour R. Mario";
+    }
+}
+
+// ================= SESSION AU CHARGEMENT =================
+// Si l'utilisateur est déjà connecté, on met à jour l'UI directement
+async function chargerSession() {
+    const { data: { session } } = await db.auth.getSession();
+    if (!session) return;
+
+    const email = session.user.email;
+    const { data: profil } = await db
+        .from("inscriptions")
+        .select("nom, prenom")
+        .eq("email", email)
+        .single();
+
+    if (profil) {
+        setBonjour(profil.nom, profil.prenom);
+        const navBtn = document.getElementById("openFormBtn");
+        if (navBtn) navBtn.textContent = "Mon compte ✓";
+    }
+}
+chargerSession();
 
 // ================= MENU =================
 const menuBtn     = document.getElementById("menuBtn");
@@ -43,11 +72,9 @@ function chargerTachesLocal() {
     catch(e) { taches = []; }
     rendreListeTaches();
 }
-
 function sauvegarderTaches() {
     try { localStorage.setItem("taches", JSON.stringify(taches)); } catch(e) {}
 }
-
 function ajouterTache() {
     const texte = inputTache ? inputTache.value.trim() : "";
     if (!texte) return;
@@ -56,25 +83,19 @@ function ajouterTache() {
     rendreListeTaches();
     if (inputTache) inputTache.value = "";
 }
-
 function marquerTacheTerminee(id) {
     const t = taches.find(t => t.id === id);
     if (t) { t.completed = !t.completed; sauvegarderTaches(); rendreListeTaches(); }
 }
-
 function supprimerTache(id) {
     taches = taches.filter(t => t.id !== id);
     sauvegarderTaches();
     rendreListeTaches();
 }
-
 function rendreListeTaches() {
     if (!liste) return;
     liste.innerHTML = "";
-    if (taches.length === 0) {
-        if (messageVide) messageVide.style.display = "flex";
-        return;
-    }
+    if (taches.length === 0) { if (messageVide) messageVide.style.display = "flex"; return; }
     if (messageVide) messageVide.style.display = "none";
     taches.forEach(tache => {
         const li = document.createElement("li");
@@ -98,259 +119,384 @@ function rendreListeTaches() {
         liste.appendChild(li);
     });
 }
-
 if (btnAjouter) btnAjouter.addEventListener("click", ajouterTache);
 if (inputTache) inputTache.addEventListener("keydown", e => { if (e.key === "Enter") ajouterTache(); });
 chargerTachesLocal();
 
-// ================= FORM OVERLAY OPEN/CLOSE =================
+// ================= POPUP FORM OPEN/CLOSE =================
 const formOverlay  = document.getElementById("formOverlay");
 const openFormBtn  = document.getElementById("openFormBtn");
 const closeFormBtn = document.getElementById("closeFormBtn");
 
 if (openFormBtn)  openFormBtn.addEventListener("click",  () => formOverlay.classList.add("active"));
-if (closeFormBtn) closeFormBtn.addEventListener("click", () => fermerPopup());
-if (formOverlay)  formOverlay.addEventListener("click",  e => { if (e.target === formOverlay) fermerPopup(); });
+if (closeFormBtn) closeFormBtn.addEventListener("click", () => fermerEtReset());
+if (formOverlay)  formOverlay.addEventListener("click",  e => { if (e.target === formOverlay) fermerEtReset(); });
 
-function fermerPopup() {
+function fermerEtReset() {
     formOverlay.classList.remove("active");
+    setTimeout(() => {
+        modeActuel = "inscription";
+        afficherVue("inscription");
+    }, 300);
 }
 
-function resetForm() {
-    const form     = document.querySelector(".custom-form");
-    const text1    = document.querySelector(".text1");
-    const subtitle = document.querySelector(".form-subtitle");
-    const msg      = document.getElementById("messageConfirmation");
-    const loginLnk = document.querySelector(".login-link");
+// ================= VUES : inscription | connexion | motdepasse | succes | erreur =================
+// modeActuel pilote ce qui est affiché dans la popup
+let modeActuel = "inscription"; // "inscription" | "connexion" | "motdepasse"
 
-    if (form)     { form.style.display = ""; form.reset(); }
-    if (text1)    { text1.style.display = ""; text1.textContent = modeConnexion ? "Se connecter" : "Créer un compte"; }
-    if (subtitle) { subtitle.style.display = ""; }
-    if (msg)      { msg.style.display = "none"; msg.innerHTML = ""; }
-    if (loginLnk) loginLnk.style.display = "";
-    if (btnInscription) {
-        btnInscription.disabled = true;
-        btnInscription.classList.remove("btn-active");
-        btnInscription.textContent = modeConnexion ? "Se connecter" : "Créer un compte";
+// On va construire la popup dynamiquement selon le mode
+function afficherVue(mode) {
+    modeActuel = mode;
+
+    const popup  = document.querySelector(".popup-formulaire");
+    if (!popup) return;
+
+    // Réinitialiser le contenu de la popup selon le mode
+    switch(mode) {
+        case "inscription": renderInscription(popup); break;
+        case "connexion":   renderConnexion(popup);   break;
+        case "motdepasse":  renderMotDePasse(popup);  break;
     }
 }
 
-// ================= MODE CONNEXION / INSCRIPTION =================
-let modeConnexion = false;
-const loginLink   = document.querySelector(".login-link a");
+// ─────────────────────────────────────────────
+// VUE INSCRIPTION
+// ─────────────────────────────────────────────
+function renderInscription(popup) {
+    popup.innerHTML = `
+        <button class="close-form" id="closeFormBtn2"><i class="fa-solid fa-xmark"></i></button>
+        <h2 class="text1">Créer un compte</h2>
+        <p class="form-subtitle">Rejoins et accède à mes projets web UI.</p>
 
-// Champs visibles seulement en mode inscription
-const champsInscription = ["nom", "prenom", "age", "formation", "confirmation"];
+        <form class="custom-form" onsubmit="return false;">
+            <div class="form-row">
+                <div class="input-group-custom">
+                    <label>Nom</label>
+                    <input type="text" id="nom" placeholder="Votre nom">
+                </div>
+                <div class="input-group-custom">
+                    <label>Prénom</label>
+                    <input type="text" id="prenom" placeholder="Votre prénom">
+                </div>
+            </div>
 
-function appliquerMode() {
-    const text1     = document.querySelector(".text1");
-    const subtitle  = document.querySelector(".form-subtitle");
-    const formRows  = document.querySelectorAll(".form-row");
-    const robotRow  = document.querySelector(".content");
+            <div class="input-group-custom">
+                <label>Email</label>
+                <input type="email" id="email" placeholder="Votre email">
+                <div id="erreurEmail" style="font-size:12px;margin-top:2px"></div>
+            </div>
 
-    if (modeConnexion) {
-        if (text1)    text1.textContent    = "Se connecter";
-        if (subtitle) subtitle.textContent = "Connecte-toi à ton compte.";
-        if (loginLink) loginLink.textContent = "Pas encore de compte ? S'inscrire";
-        if (btnInscription) btnInscription.textContent = "Se connecter";
-        // Cacher les champs inutiles en mode connexion
-        formRows.forEach(r => r.style.display = "none");
-        if (robotRow) robotRow.style.display = "none";
-    } else {
-        if (text1)    text1.textContent    = "Créer un compte";
-        if (subtitle) subtitle.textContent = "Rejoins et accède à mes projets web UI.";
-        if (loginLink) loginLink.textContent = "Vous avez déjà un compte ?";
-        if (btnInscription) btnInscription.textContent = "Créer un compte";
-        formRows.forEach(r => r.style.display = "");
-        if (robotRow) robotRow.style.display = "";
-    }
+            <div class="form-row">
+                <div class="input-group-custom">
+                    <label>Mot de passe</label>
+                    <input type="password" id="motdepasse" placeholder="Mot de passe (6 car. min)">
+                    <div id="erreurMdp" style="font-size:12px;margin-top:2px"></div>
+                </div>
+                <div class="input-group-custom">
+                    <label>Confirmation</label>
+                    <input type="password" id="confirmation" placeholder="Confirmer">
+                </div>
+            </div>
 
-    // Vider les champs et recalculer
-    document.querySelectorAll(".custom-form input").forEach(i => i.value = "");
-    const ch1 = document.getElementById("ch1");
-    if (ch1) ch1.checked = false;
-    checkForm();
-}
+            <div class="form-row">
+                <div class="input-group-custom">
+                    <label>Âge</label>
+                    <input type="number" id="age" placeholder="Votre âge">
+                </div>
+                <div class="input-group-custom">
+                    <label>Formation</label>
+                    <input type="text" id="formation" placeholder="Votre formation">
+                </div>
+            </div>
 
-if (loginLink) {
-    loginLink.addEventListener("click", e => {
+            <div class="content">
+                <label class="checkBox" id="robotCheck">
+                    <input id="ch1" type="checkbox">
+                    <div class="transition"></div>
+                </label>
+                <span class="text001">Je jure devant dieux que je suis pas un robot.</span>
+            </div>
+
+            <button type="button" class="btn-formulaire" id="btnInscription" disabled>
+                Créer un compte
+            </button>
+
+            <div class="login-link">
+                <a href="#" id="linkVersConnexion">Vous avez déjà un compte ?</a>
+            </div>
+        </form>
+        <div id="messageConfirmation" class="message-confirmation"></div>
+    `;
+
+    // Fermer
+    document.getElementById("closeFormBtn2").addEventListener("click", fermerEtReset);
+
+    // Lien → connexion
+    document.getElementById("linkVersConnexion").addEventListener("click", e => {
         e.preventDefault();
-        modeConnexion = !modeConnexion;
-        appliquerMode();
+        afficherVue("connexion");
     });
+
+    // Validation live
+    const inputs = popup.querySelectorAll(".custom-form input");
+    inputs.forEach(i => i.addEventListener("input", checkInscription));
+    document.getElementById("ch1").addEventListener("change", checkInscription);
 }
 
-// ================= FORM ELEMENTS =================
-const btnInscription = document.getElementById("btnInscription");
-const nomInput       = document.getElementById("nom");
-const prenomInput    = document.getElementById("prenom");
-const emailInput     = document.getElementById("email");
-const ageInput       = document.getElementById("age");
-const formationInput = document.getElementById("formation");
-const mdp            = document.getElementById("motdepasse");
-const confirmMdp     = document.getElementById("confirmation");
-const checkbox       = document.getElementById("ch1");
-const errEmail       = document.getElementById("erreurEmail");
-const errMdp         = document.getElementById("erreurMdp");
+function checkInscription() {
+    const btn  = document.getElementById("btnInscription");
+    if (!btn) return;
 
-if (btnInscription) btnInscription.disabled = true;
+    const nom      = document.getElementById("nom")?.value.trim();
+    const prenom   = document.getElementById("prenom")?.value.trim();
+    const email    = document.getElementById("email")?.value.trim();
+    const mdp      = document.getElementById("motdepasse")?.value;
+    const conf     = document.getElementById("confirmation")?.value;
+    const age      = document.getElementById("age")?.value.trim();
+    const formation= document.getElementById("formation")?.value.trim();
+    const robot    = document.getElementById("ch1")?.checked;
 
-// ================= VALIDATION EMAIL =================
-function verifierEmail() {
-    if (!emailInput || !emailInput.value) { if (errEmail) errEmail.textContent = ""; checkForm(); return false; }
-    const ok = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailInput.value);
-    if (errEmail) {
-        errEmail.textContent = ok ? "Email valide ✓" : "Email invalide";
-        errEmail.style.color = ok ? "#22c55e" : "#ff4d4d";
+    const errEmail = document.getElementById("erreurEmail");
+    const errMdp   = document.getElementById("erreurMdp");
+
+    const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    if (errEmail) { errEmail.textContent = email ? (emailOk ? "Email valide ✓" : "Email invalide") : ""; errEmail.style.color = emailOk ? "#22c55e" : "#ff4d4d"; }
+
+    const mdpOk = mdp && mdp.length >= 6;
+    const confOk = mdp === conf && mdpOk;
+    if (errMdp) {
+        if (!mdp)             errMdp.textContent = "";
+        else if (!mdpOk)    { errMdp.textContent = "6 caractères minimum"; errMdp.style.color = "#ff4d4d"; }
+        else if (conf && !confOk){ errMdp.textContent = "Mots de passe différents"; errMdp.style.color = "#ff4d4d"; }
+        else if (confOk)    { errMdp.textContent = "Mots de passe valides ✓"; errMdp.style.color = "#22c55e"; }
+        else                  errMdp.textContent = "";
     }
-    checkForm();
-    return ok;
+
+    const ok = nom && prenom && emailOk && mdpOk && confOk && age && formation && robot;
+    btn.disabled = !ok;
+    btn.classList.toggle("btn-active", !!ok);
+
+    // Brancher le submit seulement une fois
+    if (!btn._bound) {
+        btn._bound = true;
+        btn.addEventListener("click", async () => {
+            if (btn.disabled) return;
+            btn.textContent = "Création en cours...";
+            btn.disabled = true;
+
+            try {
+                // 1. Auth
+                const { data: authData, error: authErr } = await db.auth.signUp({
+                    email: document.getElementById("email").value.trim(),
+                    password: document.getElementById("motdepasse").value
+                });
+                if (authErr) throw authErr;
+
+                // 2. Table inscriptions
+                const { error: dbErr } = await db.from("inscriptions").insert([{
+                    nom:       document.getElementById("nom").value.trim(),
+                    prenom:    document.getElementById("prenom").value.trim(),
+                    email:     document.getElementById("email").value.trim(),
+                    age:       parseInt(document.getElementById("age").value) || null,
+                    formation: document.getElementById("formation").value.trim()
+                }]);
+                if (dbErr) console.warn("DB:", dbErr.message);
+
+                // Succès
+                afficherSucces(
+                    document.getElementById("nom").value.trim(),
+                    document.getElementById("prenom").value.trim(),
+                    true
+                );
+
+            } catch(err) {
+                let msg = err.message || "Erreur inconnue.";
+                if (msg.includes("already")) msg = "Cet email est déjà utilisé.";
+                btn.textContent = "Créer un compte";
+                btn.disabled = false;
+                btn.classList.remove("btn-active");
+                afficherMsg(msg, "err");
+            }
+        });
+    }
 }
 
-// ================= VALIDATION MOT DE PASSE =================
-function verifierMdp() {
-    if (!mdp) { checkForm(); return false; }
-    const a = mdp.value;
+// ─────────────────────────────────────────────
+// VUE CONNEXION
+// ─────────────────────────────────────────────
+function renderConnexion(popup) {
+    popup.innerHTML = `
+        <button class="close-form" id="closeFormBtn2"><i class="fa-solid fa-xmark"></i></button>
+        <h2 class="text1">Se connecter</h2>
+        <p class="form-subtitle">Connecte-toi à ton compte.</p>
 
-    // En mode connexion, pas de confirmation
-    if (modeConnexion) {
-        if (errMdp) errMdp.textContent = "";
-        checkForm();
-        return a.length >= 6;
-    }
+        <form class="custom-form" onsubmit="return false;">
+            <div class="input-group-custom">
+                <label>Email</label>
+                <input type="email" id="email" placeholder="Votre email">
+                <div id="erreurEmail" style="font-size:12px;margin-top:2px"></div>
+            </div>
 
-    if (!confirmMdp) { checkForm(); return false; }
-    const b = confirmMdp.value;
+            <div class="input-group-custom">
+                <label>Mot de passe</label>
+                <input type="password" id="motdepasse" placeholder="Votre mot de passe">
+            </div>
 
-    if (!a) { if (errMdp) errMdp.textContent = ""; checkForm(); return false; }
-    if (a.length < 6) {
-        if (errMdp) { errMdp.textContent = "6 caractères minimum"; errMdp.style.color = "#ff4d4d"; }
-        checkForm(); return false;
-    }
-    if (b && a !== b) {
-        if (errMdp) { errMdp.textContent = "Mots de passe différents"; errMdp.style.color = "#ff4d4d"; }
-        checkForm(); return false;
-    }
-    if (a === b && b.length > 0) {
-        if (errMdp) { errMdp.textContent = "Mots de passe valides ✓"; errMdp.style.color = "#22c55e"; }
-    } else {
-        if (errMdp) errMdp.textContent = "";
-    }
-    checkForm();
-    return a === b && a.length >= 6;
-}
+            <button type="button" class="btn-formulaire" id="btnConnexion" disabled>
+                Se connecter
+            </button>
 
-// ================= ACTIVATION BOUTON =================
-function checkForm() {
-    if (!btnInscription) return;
+            <div class="login-link" style="display:flex;flex-direction:column;gap:8px;align-items:center">
+                <a href="#" id="linkVersInscription">Pas encore de compte ? S'inscrire</a>
+                <a href="#" id="linkMotDePasse" style="color:#7c3aed;font-size:13px">Mot de passe oublié ?</a>
+            </div>
+        </form>
+        <div id="messageConfirmation" class="message-confirmation"></div>
+    `;
 
-    const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailInput?.value || "");
-    const mdpVal  = mdp?.value || "";
+    document.getElementById("closeFormBtn2").addEventListener("click", fermerEtReset);
+    document.getElementById("linkVersInscription").addEventListener("click", e => { e.preventDefault(); afficherVue("inscription"); });
+    document.getElementById("linkMotDePasse").addEventListener("click", e => { e.preventDefault(); afficherVue("motdepasse"); });
 
-    let ok = false;
+    const inputs = popup.querySelectorAll(".custom-form input");
+    inputs.forEach(i => i.addEventListener("input", checkConnexion));
 
-    if (modeConnexion) {
-        ok = emailOk && mdpVal.length >= 6;
-    } else {
-        const nomOk      = nomInput?.value.trim().length > 0;
-        const prenomOk   = prenomInput?.value.trim().length > 0;
-        const ageOk      = ageInput?.value.trim().length > 0;
-        const formOk     = formationInput?.value.trim().length > 0;
-        const confOk     = confirmMdp?.value === mdpVal && mdpVal.length >= 6;
-        const robotOk    = checkbox?.checked || false;
-        ok = nomOk && prenomOk && emailOk && ageOk && formOk && confOk && robotOk;
-    }
+    const btn = document.getElementById("btnConnexion");
+    btn.addEventListener("click", async () => {
+        if (btn.disabled) return;
+        btn.textContent = "Connexion en cours...";
+        btn.disabled = true;
 
-    btnInscription.disabled = !ok;
-    btnInscription.classList.toggle("btn-active", ok);
-}
+        try {
+            const email = document.getElementById("email").value.trim();
+            const mdp   = document.getElementById("motdepasse").value;
 
-document.querySelectorAll(".custom-form input").forEach(i => i.addEventListener("input", checkForm));
-if (checkbox) checkbox.addEventListener("change", checkForm);
+            const { data, error } = await db.auth.signInWithPassword({ email, password: mdp });
+            if (error) throw error;
 
-// ================= SOUMISSION =================
-if (btnInscription) {
-    btnInscription.addEventListener("click", async () => {
-        if (btnInscription.disabled) return;
-        if (!db) initSupabase();
-        if (!db) { afficherErreur("Connexion impossible, réessaie."); return; }
+            // Récupérer nom/prénom
+            const { data: profil } = await db
+                .from("inscriptions")
+                .select("nom, prenom")
+                .eq("email", email)
+                .single();
 
-        if (modeConnexion) {
-            await seConnecter();
-        } else {
-            await sInscrire();
+            const nom    = profil?.nom    || "";
+            const prenom = profil?.prenom || "";
+
+            // Mettre à jour le h1
+            setBonjour(nom, prenom);
+
+            afficherSucces(nom, prenom, false);
+
+            const navBtn = document.getElementById("openFormBtn");
+            if (navBtn) navBtn.textContent = "Mon compte ✓";
+
+            setTimeout(() => fermerEtReset(), 2500);
+
+        } catch(err) {
+            let msg = err.message || "Erreur de connexion.";
+            if (msg.includes("Invalid login credentials")) msg = "Email ou mot de passe incorrect.";
+            if (msg.includes("Email not confirmed"))       msg = "Confirme ton email avant de te connecter.";
+            btn.textContent = "Se connecter";
+            btn.disabled = false;
+            afficherMsg(msg, "err");
         }
     });
 }
 
-// ================= INSCRIPTION =================
-async function sInscrire() {
-    btnInscription.textContent = "Création en cours...";
-    btnInscription.disabled    = true;
+function checkConnexion() {
+    const btn   = document.getElementById("btnConnexion");
+    if (!btn) return;
+    const email = document.getElementById("email")?.value.trim();
+    const mdp   = document.getElementById("motdepasse")?.value;
+    const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    const errEmail = document.getElementById("erreurEmail");
+    if (errEmail) { errEmail.textContent = email ? (emailOk ? "Email valide ✓" : "Email invalide") : ""; errEmail.style.color = emailOk ? "#22c55e" : "#ff4d4d"; }
+    const ok = emailOk && mdp && mdp.length >= 6;
+    btn.disabled = !ok;
+    btn.classList.toggle("btn-active", !!ok);
+}
 
-    const email    = emailInput.value.trim();
-    const password = mdp.value;
-    const nom      = nomInput.value.trim();
-    const prenom   = prenomInput.value.trim();
-    const age      = parseInt(ageInput.value) || null;
-    const formation = formationInput.value.trim();
+// ─────────────────────────────────────────────
+// VUE MOT DE PASSE OUBLIÉ
+// ─────────────────────────────────────────────
+function renderMotDePasse(popup) {
+    popup.innerHTML = `
+        <button class="close-form" id="closeFormBtn2"><i class="fa-solid fa-xmark"></i></button>
+        <h2 class="text1">Mot de passe oublié</h2>
+        <p class="form-subtitle">Entre ton email, on t'envoie un lien pour réinitialiser ton mot de passe.</p>
 
-    try {
-        // 1. Créer le compte Auth Supabase
-        const { data: authData, error: authError } = await db.auth.signUp({ email, password });
-        if (authError) throw authError;
+        <form class="custom-form" onsubmit="return false;">
+            <div class="input-group-custom">
+                <label>Email</label>
+                <input type="email" id="emailReset" placeholder="Votre email">
+                <div id="erreurEmailReset" style="font-size:12px;margin-top:2px"></div>
+            </div>
 
-        // 2. Insérer dans la table inscriptions
-        const { error: dbError } = await db.from("inscriptions").insert([{ nom, prenom, email, age, formation }]);
-        if (dbError) console.warn("DB insert warn:", dbError.message); // non bloquant
+            <button type="button" class="btn-formulaire btn-active" id="btnReset">
+                Envoyer le lien
+            </button>
 
-        afficherSucces(nom, prenom, true);
+            <div class="login-link">
+                <a href="#" id="linkRetourConnexion">← Retour à la connexion</a>
+            </div>
+        </form>
+        <div id="messageConfirmation" class="message-confirmation"></div>
+    `;
 
-    } catch(err) {
-        let msg = err.message || "Une erreur est survenue.";
-        if (msg.includes("already registered") || msg.includes("already been registered")) {
-            msg = "Cet email est déjà utilisé.";
+    document.getElementById("closeFormBtn2").addEventListener("click", fermerEtReset);
+    document.getElementById("linkRetourConnexion").addEventListener("click", e => { e.preventDefault(); afficherVue("connexion"); });
+
+    const emailInput = document.getElementById("emailReset");
+    const btnReset   = document.getElementById("btnReset");
+    const errEmail   = document.getElementById("erreurEmailReset");
+
+    emailInput.addEventListener("input", () => {
+        const ok = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailInput.value.trim());
+        if (errEmail) { errEmail.textContent = emailInput.value ? (ok ? "Email valide ✓" : "Email invalide") : ""; errEmail.style.color = ok ? "#22c55e" : "#ff4d4d"; }
+        btnReset.disabled = !ok;
+        btnReset.classList.toggle("btn-active", ok);
+    });
+
+    btnReset.addEventListener("click", async () => {
+        const email = emailInput.value.trim();
+        if (!email) return;
+        btnReset.textContent = "Envoi en cours...";
+        btnReset.disabled = true;
+
+        try {
+            const { error } = await db.auth.resetPasswordForEmail(email, {
+                redirectTo: window.location.origin
+            });
+            if (error) throw error;
+
+            // Succès
+            const msgEl = document.getElementById("messageConfirmation");
+            document.querySelector(".custom-form").style.display = "none";
+            document.querySelector(".text1").style.display = "none";
+            document.querySelector(".form-subtitle").style.display = "none";
+            msgEl.style.display = "flex";
+            msgEl.innerHTML = `
+                <div class="success-box">
+                    <i class="fa-solid fa-envelope-circle-check" style="color:#7c3aed;font-size:65px;margin-bottom:18px"></i>
+                    <h3>Email envoyé !</h3>
+                    <p>Vérifie ta boîte mail et clique sur le lien pour réinitialiser ton mot de passe.</p>
+                    <button onclick="afficherVue('connexion')" style="margin-top:18px;padding:12px 28px;border:none;border-radius:14px;background:#7c3aed;color:white;cursor:pointer;font-size:15px;font-weight:600">
+                        Retour à la connexion
+                    </button>
+                </div>`;
+        } catch(err) {
+            btnReset.textContent = "Envoyer le lien";
+            btnReset.disabled = false;
+            afficherMsg(err.message || "Erreur lors de l'envoi.", "err");
         }
-        afficherErreur(msg);
-        btnInscription.textContent = "Créer un compte";
-        btnInscription.disabled    = false;
-    }
+    });
 }
 
-// ================= CONNEXION =================
-async function seConnecter() {
-    btnInscription.textContent = "Connexion en cours...";
-    btnInscription.disabled    = true;
-
-    const email    = emailInput.value.trim();
-    const password = mdp.value;
-
-    try {
-        const { data, error } = await db.auth.signInWithPassword({ email, password });
-        if (error) throw error;
-
-        // Récupérer le prénom depuis la table inscriptions
-        const { data: profil } = await db.from("inscriptions").select("nom, prenom").eq("email", email).single();
-        const nom    = profil?.nom    || "";
-        const prenom = profil?.prenom || "";
-
-        afficherSucces(nom, prenom, false);
-
-        // Mettre à jour le bouton nav
-        const navBtn = document.getElementById("openFormBtn");
-        if (navBtn) navBtn.textContent = "Mon compte ✓";
-
-    } catch(err) {
-        let msg = err.message || "Erreur de connexion.";
-        if (msg.includes("Invalid login credentials")) msg = "Email ou mot de passe incorrect.";
-        if (msg.includes("Email not confirmed"))       msg = "Confirme ton email avant de te connecter.";
-        afficherErreur(msg);
-        btnInscription.textContent = "Se connecter";
-        btnInscription.disabled    = false;
-    }
-}
-
-// ================= UI FEEDBACK =================
+// ─────────────────────────────────────────────
+// MESSAGES SUCCÈS / ERREUR
+// ─────────────────────────────────────────────
 function afficherSucces(nom, prenom, isInscription) {
     const form     = document.querySelector(".custom-form");
     const text1    = document.querySelector(".text1");
@@ -362,43 +508,39 @@ function afficherSucces(nom, prenom, isInscription) {
     if (text1)    text1.style.display    = "none";
     if (subtitle) subtitle.style.display = "none";
     if (loginLnk) loginLnk.style.display = "none";
-
     if (msg) {
         msg.style.display = "flex";
         msg.innerHTML = `
             <div class="success-box">
                 <i class="fa-solid fa-circle-check" style="color:#22c55e;font-size:70px;margin-bottom:18px"></i>
                 <h3>${isInscription ? "Inscription validée !" : "Connexion réussie !"}</h3>
-                <p>Bienvenue ${nom} ${prenom} !</p>
+                <p>Bienvenue ${initialeNom(nom)}.${prenom} !</p>
                 <span style="color:#9f9fa9;font-size:13px">
-                    ${isInscription ? "Vérifie ton email pour confirmer ton compte." : "Contenu débloqué ✓"}
+                    ${isInscription ? "Vérifie ton email pour confirmer ton compte." : ""}
                 </span>
             </div>`;
     }
-
-    // Fermer automatiquement après 3s si connexion
-    if (!isInscription) {
-        setTimeout(() => {
-            fermerPopup();
-            resetForm();
-            modeConnexion = false;
-            appliquerMode();
-        }, 2500);
-    }
 }
 
-function afficherErreur(msg) {
-    const msgEl = document.getElementById("messageConfirmation");
-    if (!msgEl) return;
-    msgEl.style.display = "flex";
-    msgEl.innerHTML = `
-        <div class="success-box">
-            <i class="fa-solid fa-circle-xmark" style="color:#ef4444;font-size:60px;margin-bottom:14px"></i>
-            <h3 style="color:#ef4444">Erreur</h3>
-            <p>${msg}</p>
-            <button onclick="resetForm()" style="margin-top:14px;padding:10px 22px;border:none;border-radius:12px;background:#7c3aed;color:white;cursor:pointer;font-size:14px">Réessayer</button>
-        </div>`;
+function afficherMsg(texte, type) {
+    const msg = document.getElementById("messageConfirmation");
+    if (!msg) return;
+    msg.style.display  = "block";
+    msg.style.color    = type === "err" ? "#ef4444" : "#22c55e";
+    msg.style.fontSize = "14px";
+    msg.style.marginTop = "12px";
+    msg.style.textAlign = "center";
+    msg.textContent = texte;
 }
+
+// ================= INIT POPUP =================
+// Initialiser la vue inscription au chargement
+window.addEventListener("DOMContentLoaded", () => {
+    afficherVue("inscription");
+});
+
+// Exposer pour le bouton "Retour" dans renderMotDePasse
+window.afficherVue = afficherVue;
 
 // ================= GITHUB API =================
 const githubUpdates = document.getElementById("githubUpdates");
@@ -409,10 +551,7 @@ async function chargerGithub() {
         const response = await fetch("https://api.github.com/repos/Mkail14/ma-page/commits?per_page=5");
         if (!response.ok) throw new Error(response.status);
         const data = await response.json();
-        if (!Array.isArray(data) || !data.length) {
-            githubUpdates.innerHTML = `<div class="event-empty">Aucun commit trouvé</div>`;
-            return;
-        }
+        if (!Array.isArray(data) || !data.length) { githubUpdates.innerHTML = `<div class="event-empty">Aucun commit trouvé</div>`; return; }
         githubUpdates.innerHTML = "";
         data.slice(0, 5).forEach(commit => {
             const item = document.createElement("div");
@@ -447,11 +586,9 @@ function chargerEvenementsLocal() {
     catch(e) { events = []; }
     rendreEvenements();
 }
-
 function sauvegarderEvenements() {
     try { localStorage.setItem("evenements", JSON.stringify(events)); } catch(e) {}
 }
-
 function rendreEvenements() {
     if (!eventList) return;
     eventList.innerHTML = "";
@@ -472,11 +609,9 @@ function rendreEvenements() {
         eventList.appendChild(li);
     });
 }
-
 if (btnAddEvent)  btnAddEvent.addEventListener("click",  () => eventOverlay.classList.add("active"));
 if (closeEvent)   closeEvent.addEventListener("click",   () => eventOverlay.classList.remove("active"));
 if (eventOverlay) eventOverlay.addEventListener("click", e => { if (e.target === eventOverlay) eventOverlay.classList.remove("active"); });
-
 if (saveEvent) {
     saveEvent.addEventListener("click", () => {
         const nom  = eventName?.value.trim();
@@ -490,16 +625,13 @@ if (saveEvent) {
         eventOverlay.classList.remove("active");
     });
 }
-
 function supprimerEvent(id) {
     events = events.filter(e => e.id !== id);
     sauvegarderEvenements();
     rendreEvenements();
 }
-
 chargerEvenementsLocal();
 
 // ================= EXPOSE GLOBAL =================
-window.verifierEmail = verifierEmail;
-window.verifierMdp   = verifierMdp;
-window.resetForm     = resetForm;
+window.verifierEmail = () => {};
+window.verifierMdp   = () => {};
