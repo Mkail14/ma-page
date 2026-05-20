@@ -1,28 +1,25 @@
-// ================= SUPABASE IMPORT =================
-import { supabase } from "../../supabase.js";
+// ================= STORAGE MODE =================
+// Utilise localStorage pour sauvegarder les données localement
+// Peut être remplacé par Supabase plus tard
 
 // ================= MENU =================
 const menuBtn = document.getElementById("menuBtn");
 const menuPanel = document.getElementById("menuPanel");
 const menuOverlay = document.getElementById("menuOverlay");
 
-menuBtn.addEventListener("click", () => {
+if (menuBtn && menuPanel && menuOverlay) {
+    menuBtn.addEventListener("click", () => {
+        menuBtn.classList.toggle("active");
+        menuPanel.classList.toggle("active");
+        menuOverlay.classList.toggle("active");
+    });
 
-    menuBtn.classList.toggle("active");
-    menuPanel.classList.toggle("active");
-    menuOverlay.classList.toggle("active");
-
-});
-
-
-// Fermer quand on clique dans le vide
-menuOverlay.addEventListener("click", () => {
-
-    menuBtn.classList.remove("active");
-    menuPanel.classList.remove("active");
-    menuOverlay.classList.remove("active");
-
-});
+    menuOverlay.addEventListener("click", () => {
+        menuBtn.classList.remove("active");
+        menuPanel.classList.remove("active");
+        menuOverlay.classList.remove("active");
+    });
+}
 
 // ================= TODO LIST =================
 const inputTache = document.getElementById("inputTache");
@@ -32,87 +29,62 @@ const messageVide = document.getElementById("messageVide");
 
 let taches = [];
 
-async function chargerTaches() {
+// Charger les tâches du localStorage
+function chargerTachesLocal() {
     try {
-        const { data, error } = await supabase
-            .from("taches")
-            .select("*")
-            .order("created_at", { ascending: false });
-
-        if (error) {
-            console.error("Erreur chargement tâches:", error);
-            return;
-        }
-
-        taches = data || [];
+        const saved = localStorage.getItem("taches");
+        taches = saved ? JSON.parse(saved) : [];
         rendreListeTaches();
     } catch (err) {
-        console.error("Erreur:", err);
+        console.error("Erreur chargement tâches:", err);
+        taches = [];
+        rendreListeTaches();
     }
+}
+
+// Sauvegarder les tâches dans localStorage
+function sauvegarderTaches() {
+    try {
+        localStorage.setItem("taches", JSON.stringify(taches));
+    } catch (err) {
+        console.error("Erreur sauvegarde tâches:", err);
+    }
+}
+
+async function chargerTaches() {
+    chargerTachesLocal();
 }
 
 async function ajouterTache() {
     const texte = inputTache.value.trim();
     if (!texte) return;
 
-    try {
-        const { data, error } = await supabase
-            .from("taches")
-            .insert([{ description: texte, completed: false }])
-            .select();
+    const nouvelleTache = {
+        id: Date.now(),
+        description: texte,
+        completed: false,
+        created_at: new Date().toISOString()
+    };
 
-        if (error) {
-            console.error("Erreur ajout tâche:", error);
-            return;
-        }
-
-        taches.push(data[0]);
-        rendreListeTaches();
-        inputTache.value = "";
-    } catch (err) {
-        console.error("Erreur:", err);
-    }
+    taches.unshift(nouvelleTache);
+    sauvegarderTaches();
+    rendreListeTaches();
+    inputTache.value = "";
 }
 
 async function marquerTacheTerminee(id) {
-    try {
-        const tache = taches.find(t => t.id === id);
-        if (!tache) return;
-
-        const { error } = await supabase
-            .from("taches")
-            .update({ completed: !tache.completed })
-            .eq("id", id);
-
-        if (error) {
-            console.error("Erreur mise à jour tâche:", error);
-            return;
-        }
-
+    const tache = taches.find(t => t.id === id);
+    if (tache) {
         tache.completed = !tache.completed;
+        sauvegarderTaches();
         rendreListeTaches();
-    } catch (err) {
-        console.error("Erreur:", err);
     }
 }
 
 async function supprimerTache(id) {
-    try {
-        const { error } = await supabase
-            .from("taches")
-            .delete()
-            .eq("id", id);
-
-        if (error) {
-            console.error("Erreur suppression tâche:", error);
-            return;
-        }
-
-        taches = taches.filter(t => t.id !== id);
-        rendreListeTaches();
-    } catch (err) {
-        console.error("Erreur:", err);
-    }
+    taches = taches.filter(t => t.id !== id);
+    sauvegarderTaches();
+    rendreListeTaches();
 }
 
 function rendreListeTaches() {
@@ -157,7 +129,7 @@ function rendreListeTaches() {
 btnAjouter.addEventListener("click", ajouterTache);
 
 // Charger les tâches au démarrage
-chargerTaches();
+chargerTachesLocal();
 
 
 // ================= FORM OPEN/CLOSE =================
@@ -165,8 +137,8 @@ const openFormBtn = document.getElementById("openFormBtn");
 const closeFormBtn = document.getElementById("closeFormBtn");
 const formOverlay = document.getElementById("formOverlay");
 
-openFormBtn.onclick = () => formOverlay.classList.add("active");
-closeFormBtn.onclick = () => formOverlay.classList.remove("active");
+if (openFormBtn) openFormBtn.onclick = () => formOverlay?.classList.add("active");
+if (closeFormBtn) closeFormBtn.onclick = () => formOverlay?.classList.remove("active");
 
 
 // ================= FORM ELEMENTS =================
@@ -188,7 +160,9 @@ const errMdp = document.getElementById("erreurMdp");
 
 const message = document.getElementById("messageConfirmation");
 
-btnInscription.disabled = true;
+if (btnInscription) {
+    btnInscription.disabled = true;
+}
 
 
 // ================= EMAIL =================
@@ -243,6 +217,7 @@ function verifierMdp() {
 
 // ================= FORM CHECK =================
 function checkForm() {
+    if (!nom || !prenom || !email || !age || !formation || !mdp || !confirm || !checkbox || !btnInscription) return;
 
     const allFilled =
         nom.value &&
@@ -275,26 +250,35 @@ document.querySelectorAll("input").forEach(i => {
     i.addEventListener("input", checkForm);
 });
 
-checkbox.addEventListener("change", checkForm);
+if (checkbox) {
+    checkbox.addEventListener("change", checkForm);
+}
 
 
 // ================= SUBMIT =================
-btnInscription.addEventListener("click", () => {
+if (btnInscription) {
+    btnInscription.addEventListener("click", () => {
+        if (btnInscription.disabled) return;
 
-    if (btnInscription.disabled) return;
+        const form = document.querySelector(".custom-form");
+        const text1 = document.querySelector(".text1");
+        const subtitle = document.querySelector(".form-subtitle");
 
-    document.querySelector(".custom-form").style.display = "none";
-    document.querySelector(".text1").style.display = "none";
-    document.querySelector(".form-subtitle").style.display = "none";
+        if (form) form.style.display = "none";
+        if (text1) text1.style.display = "none";
+        if (subtitle) subtitle.style.display = "none";
 
-    message.style.display = "block";
-    message.innerHTML = `
-        <div class="success-box">
-            <h3>Inscription validée</h3>
-            <p>Bienvenue ${nom.value} ${prenom.value}</p>
-        </div>
-    `;
-});
+        if (message) {
+            message.style.display = "block";
+            message.innerHTML = `
+                <div class="success-box">
+                    <h3>Inscription validée</h3>
+                    <p>Bienvenue ${nom.value} ${prenom.value}</p>
+                </div>
+            `;
+        }
+    });
+}
 
 
 
@@ -364,23 +348,30 @@ const eventEmpty = document.getElementById("eventEmpty");
 
 let events = [];
 
-async function chargerEvenements() {
+// Charger les événements du localStorage
+function chargerEvenementsLocal() {
     try {
-        const { data, error } = await supabase
-            .from("evenements")
-            .select("*")
-            .order("created_at", { ascending: false });
-
-        if (error) {
-            console.error("Erreur chargement événements:", error);
-            return;
-        }
-
-        events = data || [];
+        const saved = localStorage.getItem("evenements");
+        events = saved ? JSON.parse(saved) : [];
         rendreEvenements();
     } catch (err) {
-        console.error("Erreur:", err);
+        console.error("Erreur chargement événements:", err);
+        events = [];
+        rendreEvenements();
     }
+}
+
+// Sauvegarder les événements dans localStorage
+function sauvegarderEvenements() {
+    try {
+        localStorage.setItem("evenements", JSON.stringify(events));
+    } catch (err) {
+        console.error("Erreur sauvegarde événements:", err);
+    }
+}
+
+async function chargerEvenements() {
+    chargerEvenementsLocal();
 }
 
 function rendreEvenements(){
@@ -429,75 +420,61 @@ const saveEvent = document.getElementById("saveEvent");
 
 
 // OUVRIR POPUP
-btnAddEvent.addEventListener("click",()=>{
-
-    eventOverlay.classList.add("active");
-
-});
-
+if (btnAddEvent) {
+    btnAddEvent.addEventListener("click",()=>{
+        if (eventOverlay) eventOverlay.classList.add("active");
+    });
+}
 
 // FERMER POPUP
-closeEvent.addEventListener("click",()=>{
-
-    eventOverlay.classList.remove("active");
-
-});
+if (closeEvent) {
+    closeEvent.addEventListener("click",()=>{
+        if (eventOverlay) eventOverlay.classList.remove("active");
+    });
+}
 
 
 // AJOUT EVENT
-saveEvent.addEventListener("click", async ()=>{
+if (saveEvent) {
+    saveEvent.addEventListener("click", ()=>{
 
-    const nom = eventName.value.trim();
-    const date = eventDate.value;
+        const nom = eventName.value.trim();
+        const date = eventDate.value;
 
-    if(!nom || !date) return;
+        if(!nom || !date) return;
 
-    try {
-        const { data, error } = await supabase
-            .from("evenements")
-            .insert([{ nom, date }])
-            .select();
+        const nouvelEvenement = {
+            id: Date.now(),
+            nom,
+            date,
+            created_at: new Date().toISOString()
+        };
 
-        if (error) {
-            console.error("Erreur ajout événement:", error);
-            return;
-        }
-
-        events.push(data[0]);
+        events.unshift(nouvelEvenement);
+        sauvegarderEvenements();
         rendreEvenements();
 
         eventName.value = "";
         eventDate.value = "";
 
-        eventOverlay.classList.remove("active");
-    } catch (err) {
-        console.error("Erreur:", err);
-    }
+        if (eventOverlay) eventOverlay.classList.remove("active");
 
-});
+    });
+}
 
 
 async function supprimerEvent(id){
 
-    try {
-        const { error } = await supabase
-            .from("evenements")
-            .delete()
-            .eq("id", id);
-
-        if (error) {
-            console.error("Erreur suppression événement:", error);
-            return;
-        }
-
-        events = events.filter(e => e.id !== id);
-        rendreEvenements();
-    } catch (err) {
-        console.error("Erreur:", err);
-    }
+    events = events.filter(e => e.id !== id);
+    sauvegarderEvenements();
+    rendreEvenements();
 
 }
 
 // Charger les événements au démarrage
-chargerEvenements();
-rendreEvenements();
+chargerEvenementsLocal();
+
+// ================= EXPOSE GLOBAL FUNCTIONS =================
+// Nécessaire pour les oninput/onclick inline du HTML quand le script est en module
+window.verifierEmail = verifierEmail;
+window.verifierMdp = verifierMdp;
