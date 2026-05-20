@@ -1,3 +1,5 @@
+import { supabase } from "../../../../../../../supabase.js";
+
 /* ===========================
    SÉLECTEURS
 =========================== */
@@ -6,31 +8,29 @@ const heroText           = document.querySelector("#heroText");
 const inventaireSection  = document.querySelector("#inventaireSection");
 const clientsSection     = document.querySelector("#clientsSection");
 const inventaireStats    = document.querySelector("#inventaireStats");
-
 const navInventaire      = document.querySelector("#navInventaire");
 const navClients         = document.querySelector("#navClients");
 const menuInventaire     = document.querySelector("#menuInventaire");
 const menuClients        = document.querySelector("#menuClients");
-const menuAccueil        = document.querySelector("#menuAccueil");
 
+const menuAccueil        = document.querySelector("#menuAccueil");
 const productsContainer  = document.querySelector("#productsContainer");
 const clientsContainer   = document.querySelector("#clientsContainer");
 const btnCharger         = document.querySelector("#btnCharger");
-
 const rechercheProduit   = document.querySelector("#rechercheProduit");
 const rechercheClient    = document.querySelector("#rechercheClient");
 const filterCategorie    = document.querySelector("#filterCategorie");
-const filterVille        = document.querySelector("#filterVille");
 
+const filterVille        = document.querySelector("#filterVille");
 const toggleProductsView = document.querySelector("#toggleProductsView");
 const toggleClientsView  = document.querySelector("#toggleClientsView");
 const menuBtn            = document.querySelector("#menuBtn");
 const menuPanel          = document.querySelector("#menuPanel");
 const menuOverlay        = document.querySelector("#menuOverlay");
 const design1            = document.querySelector("#design1");
+
 const totalProduits      = document.querySelector("#totalProduits");
 const produitsAffiches   = document.querySelector("#produitsAffiches");
-
 const totalCategories    = document.querySelector("#totalCategories");
 const cardsSales         = document.querySelector("#cardsSales");
 const popup              = document.getElementById("popup");
@@ -38,10 +38,10 @@ const openPopup          = document.getElementById("openPopup");
 const closePopup         = document.getElementById("closePopup");
 const validate           = document.getElementById("validate");
 const password           = document.getElementById("password");
+
 const message            = document.getElementById("message");
 const attemptsText       = document.getElementById("attempts");
 const vraiCode           = "1404";
-
 const blurCarte          = document.querySelector(".blur-card");
 const cadenas            = document.querySelector(".cadennas");
 const modalAjouter       = document.querySelector("#modalAjouterClient");
@@ -585,3 +585,10 @@ validate.onclick = () => {
 password.addEventListener("keydown", (e) => {
   if (e.key === "Enter") validate.onclick();
 });
+
+
+
+
+
+
+

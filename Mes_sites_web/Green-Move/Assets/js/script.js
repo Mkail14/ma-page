@@ -1,3 +1,5 @@
+import { supabase } from "../../../../../../../supabase.js";
+
 const tarifButtons = document.querySelectorAll("#tarifs .tarif-btn");
 
             tarifButtons.forEach((button) => {

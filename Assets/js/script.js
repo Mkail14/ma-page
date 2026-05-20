@@ -1,3 +1,6 @@
+// ================= SUPABASE IMPORT =================
+import { supabase } from "../../supabase.js";
+
 // ================= MENU =================
 const menuBtn = document.getElementById("menuBtn");
 const menuPanel = document.getElementById("menuPanel");
@@ -27,46 +30,134 @@ const btnAjouter = document.getElementById("btnAjouter");
 const liste = document.getElementById("listeTaches");
 const messageVide = document.getElementById("messageVide");
 
-function ajouterTache() {
+let taches = [];
+
+async function chargerTaches() {
+    try {
+        const { data, error } = await supabase
+            .from("taches")
+            .select("*")
+            .order("created_at", { ascending: false });
+
+        if (error) {
+            console.error("Erreur chargement tâches:", error);
+            return;
+        }
+
+        taches = data || [];
+        rendreListeTaches();
+    } catch (err) {
+        console.error("Erreur:", err);
+    }
+}
+
+async function ajouterTache() {
     const texte = inputTache.value.trim();
     if (!texte) return;
 
-    const li = document.createElement("li");
-    li.classList.add("tache");
+    try {
+        const { data, error } = await supabase
+            .from("taches")
+            .insert([{ description: texte, completed: false }])
+            .select();
 
-    const span = document.createElement("span");
-    span.textContent = texte;
-
-    const actions = document.createElement("div");
-    actions.classList.add("actions");
-
-    const btnDone = document.createElement("button");
-    btnDone.textContent = "OK";
-
-    const btnDelete = document.createElement("button");
-    btnDelete.textContent = "Supprimer";
-
-    btnDone.onclick = () => span.classList.toggle("termine");
-
-    btnDelete.onclick = () => {
-        li.remove();
-        if (liste.children.length === 0) {
-            messageVide.style.display = "flex";
+        if (error) {
+            console.error("Erreur ajout tâche:", error);
+            return;
         }
-    };
 
-    actions.appendChild(btnDone);
-    actions.appendChild(btnDelete);
+        taches.push(data[0]);
+        rendreListeTaches();
+        inputTache.value = "";
+    } catch (err) {
+        console.error("Erreur:", err);
+    }
+}
 
-    li.appendChild(span);
-    li.appendChild(actions);
-    liste.appendChild(li);
+async function marquerTacheTerminee(id) {
+    try {
+        const tache = taches.find(t => t.id === id);
+        if (!tache) return;
+
+        const { error } = await supabase
+            .from("taches")
+            .update({ completed: !tache.completed })
+            .eq("id", id);
+
+        if (error) {
+            console.error("Erreur mise à jour tâche:", error);
+            return;
+        }
+
+        tache.completed = !tache.completed;
+        rendreListeTaches();
+    } catch (err) {
+        console.error("Erreur:", err);
+    }
+}
+
+async function supprimerTache(id) {
+    try {
+        const { error } = await supabase
+            .from("taches")
+            .delete()
+            .eq("id", id);
+
+        if (error) {
+            console.error("Erreur suppression tâche:", error);
+            return;
+        }
+
+        taches = taches.filter(t => t.id !== id);
+        rendreListeTaches();
+    } catch (err) {
+        console.error("Erreur:", err);
+    }
+}
+
+function rendreListeTaches() {
+    liste.innerHTML = "";
+
+    if (taches.length === 0) {
+        messageVide.style.display = "flex";
+        return;
+    }
 
     messageVide.style.display = "none";
-    inputTache.value = "";
+
+    taches.forEach(tache => {
+        const li = document.createElement("li");
+        li.classList.add("tache");
+        if (tache.completed) li.classList.add("termine");
+
+        const span = document.createElement("span");
+        span.textContent = tache.description;
+        if (tache.completed) span.classList.add("termine");
+
+        const actions = document.createElement("div");
+        actions.classList.add("actions");
+
+        const btnDone = document.createElement("button");
+        btnDone.textContent = "OK";
+        btnDone.onclick = () => marquerTacheTerminee(tache.id);
+
+        const btnDelete = document.createElement("button");
+        btnDelete.textContent = "Supprimer";
+        btnDelete.onclick = () => supprimerTache(tache.id);
+
+        actions.appendChild(btnDone);
+        actions.appendChild(btnDelete);
+
+        li.appendChild(span);
+        li.appendChild(actions);
+        liste.appendChild(li);
+    });
 }
 
 btnAjouter.addEventListener("click", ajouterTache);
+
+// Charger les tâches au démarrage
+chargerTaches();
 
 
 // ================= FORM OPEN/CLOSE =================
@@ -273,7 +364,26 @@ const eventEmpty = document.getElementById("eventEmpty");
 
 let events = [];
 
-function renderEvents(){
+async function chargerEvenements() {
+    try {
+        const { data, error } = await supabase
+            .from("evenements")
+            .select("*")
+            .order("created_at", { ascending: false });
+
+        if (error) {
+            console.error("Erreur chargement événements:", error);
+            return;
+        }
+
+        events = data || [];
+        rendreEvenements();
+    } catch (err) {
+        console.error("Erreur:", err);
+    }
+}
+
+function rendreEvenements(){
 
     eventList.innerHTML = "";
 
@@ -285,7 +395,7 @@ function renderEvents(){
 
     eventEmpty.style.display = "none";
 
-    events.forEach((event,index)=>{
+    events.forEach((event)=>{
 
         const li = document.createElement("li");
         li.classList.add("event-item");
@@ -296,10 +406,12 @@ function renderEvents(){
                 <div class="event-date">${event.date}</div>
             </div>
 
-            <button onclick="supprimerEvent(${index})">
+            <button class="btn-delete-event">
                 <i class="fa-solid fa-trash"></i>
             </button>
         `;
+
+        li.querySelector(".btn-delete-event").onclick = () => supprimerEvent(event.id);
 
         eventList.appendChild(li);
 
@@ -333,31 +445,59 @@ closeEvent.addEventListener("click",()=>{
 
 
 // AJOUT EVENT
-saveEvent.addEventListener("click",()=>{
+saveEvent.addEventListener("click", async ()=>{
 
     const nom = eventName.value.trim();
     const date = eventDate.value;
 
     if(!nom || !date) return;
 
-    events.push({nom,date});
+    try {
+        const { data, error } = await supabase
+            .from("evenements")
+            .insert([{ nom, date }])
+            .select();
 
-    renderEvents();
+        if (error) {
+            console.error("Erreur ajout événement:", error);
+            return;
+        }
 
-    eventName.value = "";
-    eventDate.value = "";
+        events.push(data[0]);
+        rendreEvenements();
 
-    eventOverlay.classList.remove("active");
+        eventName.value = "";
+        eventDate.value = "";
+
+        eventOverlay.classList.remove("active");
+    } catch (err) {
+        console.error("Erreur:", err);
+    }
 
 });
 
 
-function supprimerEvent(index){
+async function supprimerEvent(id){
 
-    events.splice(index,1);
+    try {
+        const { error } = await supabase
+            .from("evenements")
+            .delete()
+            .eq("id", id);
 
-    renderEvents();
+        if (error) {
+            console.error("Erreur suppression événement:", error);
+            return;
+        }
+
+        events = events.filter(e => e.id !== id);
+        rendreEvenements();
+    } catch (err) {
+        console.error("Erreur:", err);
+    }
 
 }
 
-renderEvents();
+// Charger les événements au démarrage
+chargerEvenements();
+rendreEvenements();

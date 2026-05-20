@@ -1,4 +1,6 @@
-﻿// ===== CURSEUR CUSTOM =====
+﻿import { supabase } from "../../../../../../../supabase.js";
+
+// ===== CURSEUR CUSTOM =====
 document.addEventListener("mousemove", (e) => {
   const cursor = document.querySelector(".cursor");
   if (!cursor) return;
