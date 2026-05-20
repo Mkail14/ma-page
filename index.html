@@ -5,8 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DWWM - Mario</title>
-    <link rel="stylesheet"href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"el="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="Assets/css/style.css">
 </head>
 
@@ -30,8 +30,8 @@
 
         <div class="section">
             <h6>Contact</h6>
-            <a href="#">Mon numéro</a>
-            <a href="#">Support</a>
+            <a href="tel:0639941101">Mon numéro</a>
+            <a href="mailto:mikail.jms25@gmail.com">Support</a>
         </div>
 
         <div class="bottom-row">
@@ -39,9 +39,9 @@
             <div class="left">Me suivre</div>
 
             <div class="social">
-                <a href="https://www.instagram.com/nanjara.io/"><i class="fa-brands fa-instagram"></i></a>
-                <a href="https://www.facebook.com/rabemananjara.mario.james.mikail"><i class="fa-brands fa-facebook-f"></i></a>
-                <a href="https://www.linkedin.com/in/rabe-mario-james-mikail-a42b22332/"><i class="fa-brands fa-linkedin-in"></i></a>
+                <a href="https://www.instagram.com/nanjara.io/" target="_blank" rel="noopener"><i class="fa-brands fa-instagram"></i></a>
+                <a href="https://www.facebook.com/rabemananjara.mario.james.mikail" target="_blank" rel="noopener"><i class="fa-brands fa-facebook-f"></i></a>
+                <a href="https://www.linkedin.com/in/rabe-mario-james-mikail-a42b22332/" target="_blank" rel="noopener"><i class="fa-brands fa-linkedin-in"></i></a>
             </div>
         </div>
     </div>
@@ -67,7 +67,7 @@
         <div class="hero-side">
             <div class="hero-content">
                 <h1 class="fw-bold">Bonjour R. Mario</h1>
-                <p>Ma page de garde là où il y a tous mes projets et mesréalisations web UI design. Bienvenue dans mon univers créatif :)</p>
+                <p>Ma page de garde là où il y a tous mes projets et mes réalisations web UI design. Bienvenue dans mon univers créatif :)</p>
                 <div class="hero-buttons">
                     <a href="#" class="btn-primary-custom">Mes anciennes tâches</a>
                     <a href="tel:0639941101" class="btn-secondary-custom">Contact</a>
@@ -85,7 +85,6 @@
     <span class="status-live"></span>
   </div>
 
-  <!-- contenu des commits ici -->
   <div id="githubUpdates" class="updates-list">
     <div class="update-item">
       <div class="update-dot"></div>
@@ -154,7 +153,7 @@
                     <h2 class="text1">Créer un compte</h2>
 
                     <p class="form-subtitle">Rejoins et accède à mes projets web UI.</p>
-                    <form class="custom-form">
+                    <form class="custom-form" onsubmit="return false;">
                         <div class="form-row">
                             <div class="input-group-custom">
                                 <label>Nom</label>
@@ -170,7 +169,7 @@
 
                         <div class="input-group-custom">
                             <label>Email</label>
-                            <input type="email" id="email" class="is-invalid" placeholder="Votre email" oninput="verifierEmail()">
+                            <input type="email" id="email" placeholder="Votre email" oninput="verifierEmail()">
                             <div id="erreurEmail"></div>
                         </div>
 
@@ -217,19 +216,6 @@
 
             </div>
 
-
-
-
-
-
-
-
-
-
-
-
-
-    </div>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="Assets/js/script.js"></script>
 

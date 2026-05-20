@@ -1,6 +1,8 @@
-// ================= STORAGE MODE =================
-// Utilise localStorage pour sauvegarder les données localement
-// Peut être remplacé par Supabase plus tard
+// ================= SUPABASE INIT =================
+const SUPABASE_URL = "https://dxtgwpoeclgyldoymvpl.supabase.co";
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR4dGd3cG9lY2xneWxkb3ltdnBsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkyMzE1NTMsImV4cCI6MjA5NDgwNzU1M30.dkfyncgnpSprtl86BK6ztILLFYEahiODENIn-h9kvDI";
+const { createClient } = supabase;
+const db = createClient(SUPABASE_URL, SUPABASE_KEY);
 
 // ================= MENU =================
 const menuBtn = document.getElementById("menuBtn");
@@ -29,7 +31,6 @@ const messageVide = document.getElementById("messageVide");
 
 let taches = [];
 
-// Charger les tâches du localStorage
 function chargerTachesLocal() {
     try {
         const saved = localStorage.getItem("taches");
@@ -42,7 +43,6 @@ function chargerTachesLocal() {
     }
 }
 
-// Sauvegarder les tâches dans localStorage
 function sauvegarderTaches() {
     try {
         localStorage.setItem("taches", JSON.stringify(taches));
@@ -51,11 +51,7 @@ function sauvegarderTaches() {
     }
 }
 
-async function chargerTaches() {
-    chargerTachesLocal();
-}
-
-async function ajouterTache() {
+function ajouterTache() {
     const texte = inputTache.value.trim();
     if (!texte) return;
 
@@ -72,7 +68,7 @@ async function ajouterTache() {
     inputTache.value = "";
 }
 
-async function marquerTacheTerminee(id) {
+function marquerTacheTerminee(id) {
     const tache = taches.find(t => t.id === id);
     if (tache) {
         tache.completed = !tache.completed;
@@ -81,7 +77,7 @@ async function marquerTacheTerminee(id) {
     }
 }
 
-async function supprimerTache(id) {
+function supprimerTache(id) {
     taches = taches.filter(t => t.id !== id);
     sauvegarderTaches();
     rendreListeTaches();
@@ -126,9 +122,16 @@ function rendreListeTaches() {
     });
 }
 
-btnAjouter.addEventListener("click", ajouterTache);
+if (btnAjouter) {
+    btnAjouter.addEventListener("click", ajouterTache);
+}
 
-// Charger les tâches au démarrage
+if (inputTache) {
+    inputTache.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") ajouterTache();
+    });
+}
+
 chargerTachesLocal();
 
 
@@ -140,23 +143,29 @@ const formOverlay = document.getElementById("formOverlay");
 if (openFormBtn) openFormBtn.onclick = () => formOverlay?.classList.add("active");
 if (closeFormBtn) closeFormBtn.onclick = () => formOverlay?.classList.remove("active");
 
+// Fermer en cliquant sur l'overlay
+if (formOverlay) {
+    formOverlay.addEventListener("click", (e) => {
+        if (e.target === formOverlay) formOverlay.classList.remove("active");
+    });
+}
 
 // ================= FORM ELEMENTS =================
 const btnInscription = document.getElementById("btnInscription");
 
-const nom = document.getElementById("nom");
-const prenom = document.getElementById("prenom");
-const email = document.getElementById("email");
-const age = document.getElementById("age");
-const formation = document.getElementById("formation");
+const nomInput      = document.getElementById("nom");
+const prenomInput   = document.getElementById("prenom");
+const emailInput    = document.getElementById("email");
+const ageInput      = document.getElementById("age");
+const formationInput= document.getElementById("formation");
 
-const mdp = document.getElementById("motdepasse");
+const mdp     = document.getElementById("motdepasse");
 const confirm = document.getElementById("confirmation");
 
 const checkbox = document.getElementById("robotCheck");
 
 const errEmail = document.getElementById("erreurEmail");
-const errMdp = document.getElementById("erreurMdp");
+const errMdp   = document.getElementById("erreurMdp");
 
 const message = document.getElementById("messageConfirmation");
 
@@ -169,62 +178,73 @@ if (btnInscription) {
 function verifierEmail() {
     const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-    if (!email.value) {
-        errEmail.textContent = "";
+    if (!emailInput || !emailInput.value) {
+        if (errEmail) errEmail.textContent = "";
         return false;
     }
 
-    if (!regex.test(email.value)) {
-        errEmail.textContent = "Email invalide";
-        errEmail.style.color = "#ff4d4d";
+    if (!regex.test(emailInput.value)) {
+        if (errEmail) {
+            errEmail.textContent = "Email invalide";
+            errEmail.style.color = "#ff4d4d";
+        }
         return false;
     }
 
-    errEmail.textContent = "Email valide";
-    errEmail.style.color = "#22c55e";
+    if (errEmail) {
+        errEmail.textContent = "Email valide ✓";
+        errEmail.style.color = "#22c55e";
+    }
     return true;
 }
 
 
 // ================= PASSWORD =================
 function verifierMdp() {
+    if (!mdp || !confirm) return false;
 
     const a = mdp.value;
     const b = confirm.value;
 
     if (!a || !b) {
-        errMdp.textContent = "";
+        if (errMdp) errMdp.textContent = "";
         return false;
     }
 
     if (a.length < 6) {
-        errMdp.textContent = "6 caractères minimum";
-        errMdp.style.color = "#ff4d4d";
+        if (errMdp) {
+            errMdp.textContent = "6 caractères minimum";
+            errMdp.style.color = "#ff4d4d";
+        }
         return false;
     }
 
     if (a !== b) {
-        errMdp.textContent = "Mots de passe différents";
-        errMdp.style.color = "#ff4d4d";
+        if (errMdp) {
+            errMdp.textContent = "Mots de passe différents";
+            errMdp.style.color = "#ff4d4d";
+        }
         return false;
     }
 
-    errMdp.textContent = "Mots de passe valides";
-    errMdp.style.color = "#22c55e";
+    if (errMdp) {
+        errMdp.textContent = "Mots de passe valides ✓";
+        errMdp.style.color = "#22c55e";
+    }
     return true;
 }
 
 
 // ================= FORM CHECK =================
 function checkForm() {
-    if (!nom || !prenom || !email || !age || !formation || !mdp || !confirm || !checkbox || !btnInscription) return;
+    if (!nomInput || !prenomInput || !emailInput || !ageInput || !formationInput || !mdp || !confirm || !checkbox || !btnInscription) return;
 
     const allFilled =
-        nom.value &&
-        prenom.value &&
-        email.value &&
-        age.value &&
-        formation.value &&
+        nomInput.value.trim() &&
+        prenomInput.value.trim() &&
+        emailInput.value.trim() &&
+        ageInput.value.trim() &&
+        formationInput.value.trim() &&
         mdp.value &&
         confirm.value;
 
@@ -236,7 +256,6 @@ function checkForm() {
 
     btnInscription.disabled = !ok;
 
-    // 🔥 BOUTON LUMINEUX
     if (ok) {
         btnInscription.classList.add("btn-active");
     } else {
@@ -246,7 +265,7 @@ function checkForm() {
 
 
 // ================= EVENTS =================
-document.querySelectorAll("input").forEach(i => {
+document.querySelectorAll(".custom-form input").forEach(i => {
     i.addEventListener("input", checkForm);
 });
 
@@ -255,64 +274,91 @@ if (checkbox) {
 }
 
 
-// ================= SUBMIT =================
+// ================= SUBMIT avec Supabase =================
 if (btnInscription) {
-    btnInscription.addEventListener("click", () => {
+    btnInscription.addEventListener("click", async () => {
         if (btnInscription.disabled) return;
 
-        const form = document.querySelector(".custom-form");
-        const text1 = document.querySelector(".text1");
-        const subtitle = document.querySelector(".form-subtitle");
+        btnInscription.textContent = "Enregistrement...";
+        btnInscription.disabled = true;
+
+        // Sauvegarde dans Supabase
+        const { error } = await db.from("inscriptions").insert([{
+            nom: nomInput.value.trim(),
+            prenom: prenomInput.value.trim(),
+            email: emailInput.value.trim(),
+            age: parseInt(ageInput.value) || null,
+            formation: formationInput.value.trim()
+        }]);
+
+        const form    = document.querySelector(".custom-form");
+        const text1   = document.querySelector(".text1");
+        const subtitle= document.querySelector(".form-subtitle");
 
         if (form) form.style.display = "none";
         if (text1) text1.style.display = "none";
         if (subtitle) subtitle.style.display = "none";
 
         if (message) {
-            message.style.display = "block";
-            message.innerHTML = `
-                <div class="success-box">
-                    <h3>Inscription validée</h3>
-                    <p>Bienvenue ${nom.value} ${prenom.value}</p>
-                </div>
-            `;
+            message.style.display = "flex";
+            if (error) {
+                message.innerHTML = `
+                    <div class="success-box">
+                        <i class="fa-solid fa-circle-check" style="color:#7c3aed;font-size:70px;margin-bottom:18px"></i>
+                        <h3>Inscription validée</h3>
+                        <p>Bienvenue ${nomInput.value} ${prenomInput.value} !</p>
+                        <span style="color:#9f9fa9;font-size:13px">(sauvegarde locale uniquement)</span>
+                    </div>
+                `;
+            } else {
+                message.innerHTML = `
+                    <div class="success-box">
+                        <i class="fa-solid fa-circle-check" style="color:#22c55e;font-size:70px;margin-bottom:18px"></i>
+                        <h3>Inscription validée !</h3>
+                        <p>Bienvenue ${nomInput.value} ${prenomInput.value} !</p>
+                        <span style="color:#9f9fa9;font-size:13px">Compte créé avec succès</span>
+                    </div>
+                `;
+            }
         }
     });
 }
 
 
-
 // ================= GITHUB API =================
-
 const githubUpdates = document.getElementById("githubUpdates");
 
-// ⚠️ CHANGE ICI
-const USERNAME = "TON_USERNAME_GITHUB";
-const REPO = "TON_REPO";
+// Repo GitHub réel
+const USERNAME = "Mkail14";
+const REPO = "ma-page";
 
 async function chargerGithub() {
+    if (!githubUpdates) return;
 
-    try{
-
+    try {
         const response = await fetch(
             `https://api.github.com/repos/${USERNAME}/${REPO}/commits`
         );
 
+        if (!response.ok) throw new Error("Réponse non OK: " + response.status);
+
         const data = await response.json();
+
+        if (!Array.isArray(data) || data.length === 0) {
+            githubUpdates.innerHTML = `<div class="event-empty">Aucun commit trouvé</div>`;
+            return;
+        }
 
         githubUpdates.innerHTML = "";
 
-        data.slice(0,5).forEach(commit => {
-
+        data.slice(0, 5).forEach(commit => {
             const item = document.createElement("div");
             item.classList.add("update-item");
 
             item.innerHTML = `
                 <div class="update-dot"></div>
-
                 <div>
                     <strong>${commit.commit.message}</strong>
-
                     <p>
                         ${commit.commit.author.name}
                         •
@@ -322,33 +368,28 @@ async function chargerGithub() {
             `;
 
             githubUpdates.appendChild(item);
-
         });
 
-    }catch(err){
-
+    } catch (err) {
+        console.error("GitHub error:", err);
         githubUpdates.innerHTML = `
             <div class="event-empty">
                 Impossible de charger GitHub
             </div>
         `;
-
     }
-
 }
 
 chargerGithub();
 
 
 // ================= CALENDAR =================
-
 const btnAddEvent = document.getElementById("btnAddEvent");
-const eventList = document.getElementById("eventList");
-const eventEmpty = document.getElementById("eventEmpty");
+const eventList   = document.getElementById("eventList");
+const eventEmpty  = document.getElementById("eventEmpty");
 
 let events = [];
 
-// Charger les événements du localStorage
 function chargerEvenementsLocal() {
     try {
         const saved = localStorage.getItem("evenements");
@@ -361,7 +402,6 @@ function chargerEvenementsLocal() {
     }
 }
 
-// Sauvegarder les événements dans localStorage
 function sauvegarderEvenements() {
     try {
         localStorage.setItem("evenements", JSON.stringify(events));
@@ -370,24 +410,18 @@ function sauvegarderEvenements() {
     }
 }
 
-async function chargerEvenements() {
-    chargerEvenementsLocal();
-}
-
-function rendreEvenements(){
-
+function rendreEvenements() {
+    if (!eventList) return;
     eventList.innerHTML = "";
 
-    if(events.length === 0){
-
-        eventEmpty.style.display = "flex";
+    if (events.length === 0) {
+        if (eventEmpty) eventEmpty.style.display = "flex";
         return;
     }
 
-    eventEmpty.style.display = "none";
+    if (eventEmpty) eventEmpty.style.display = "none";
 
-    events.forEach((event)=>{
-
+    events.forEach((event) => {
         const li = document.createElement("li");
         li.classList.add("event-item");
 
@@ -396,52 +430,50 @@ function rendreEvenements(){
                 <strong>${event.nom}</strong>
                 <div class="event-date">${event.date}</div>
             </div>
-
             <button class="btn-delete-event">
                 <i class="fa-solid fa-trash"></i>
             </button>
         `;
 
         li.querySelector(".btn-delete-event").onclick = () => supprimerEvent(event.id);
-
         eventList.appendChild(li);
-
     });
-
 }
 
 const eventOverlay = document.getElementById("eventOverlay");
-const closeEvent = document.getElementById("closeEvent");
-
-const eventName = document.getElementById("eventName");
-const eventDate = document.getElementById("eventDate");
-
-const saveEvent = document.getElementById("saveEvent");
-
+const closeEvent   = document.getElementById("closeEvent");
+const eventName    = document.getElementById("eventName");
+const eventDate    = document.getElementById("eventDate");
+const saveEvent    = document.getElementById("saveEvent");
 
 // OUVRIR POPUP
 if (btnAddEvent) {
-    btnAddEvent.addEventListener("click",()=>{
+    btnAddEvent.addEventListener("click", () => {
         if (eventOverlay) eventOverlay.classList.add("active");
     });
 }
 
 // FERMER POPUP
 if (closeEvent) {
-    closeEvent.addEventListener("click",()=>{
+    closeEvent.addEventListener("click", () => {
         if (eventOverlay) eventOverlay.classList.remove("active");
     });
 }
 
+// Fermer en cliquant dehors
+if (eventOverlay) {
+    eventOverlay.addEventListener("click", (e) => {
+        if (e.target === eventOverlay) eventOverlay.classList.remove("active");
+    });
+}
 
 // AJOUT EVENT
 if (saveEvent) {
-    saveEvent.addEventListener("click", ()=>{
+    saveEvent.addEventListener("click", () => {
+        const nom  = eventName ? eventName.value.trim() : "";
+        const date = eventDate ? eventDate.value : "";
 
-        const nom = eventName.value.trim();
-        const date = eventDate.value;
-
-        if(!nom || !date) return;
+        if (!nom || !date) return;
 
         const nouvelEvenement = {
             id: Date.now(),
@@ -454,27 +486,20 @@ if (saveEvent) {
         sauvegarderEvenements();
         rendreEvenements();
 
-        eventName.value = "";
-        eventDate.value = "";
-
+        if (eventName) eventName.value = "";
+        if (eventDate) eventDate.value = "";
         if (eventOverlay) eventOverlay.classList.remove("active");
-
     });
 }
 
-
-async function supprimerEvent(id){
-
+function supprimerEvent(id) {
     events = events.filter(e => e.id !== id);
     sauvegarderEvenements();
     rendreEvenements();
-
 }
 
-// Charger les événements au démarrage
 chargerEvenementsLocal();
 
 // ================= EXPOSE GLOBAL FUNCTIONS =================
-// Nécessaire pour les oninput/onclick inline du HTML quand le script est en module
 window.verifierEmail = verifierEmail;
-window.verifierMdp = verifierMdp;
+window.verifierMdp   = verifierMdp;

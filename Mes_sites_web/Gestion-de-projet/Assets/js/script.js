@@ -1,4 +1,10 @@
-import { supabase } from "../../../../../../../supabase.js";
+/* ===========================
+   GESTION DE PROJET — script.js
+   Fixes:
+   - Import Supabase cassé → supprimé (non utilisé ici)
+   - message element → référencé depuis le DOM
+   - loading="xxx" → loading="lazy"
+=========================== */
 
 /* ===========================
    SÉLECTEURS
@@ -39,7 +45,19 @@ const closePopup         = document.getElementById("closePopup");
 const validate           = document.getElementById("validate");
 const password           = document.getElementById("password");
 
-const message            = document.getElementById("message");
+// FIX: "message" n'existe pas dans le HTML → on le crée dynamiquement
+let messageEl = document.getElementById("message");
+if (!messageEl) {
+    messageEl = document.createElement("div");
+    messageEl.id = "message";
+    messageEl.style.cssText = "text-align:center;margin-top:10px;font-size:14px;min-height:20px;";
+    const popupBox = document.querySelector(".popup-box");
+    if (popupBox) {
+        const validateBtn = document.getElementById("validate");
+        if (validateBtn) popupBox.insertBefore(messageEl, validateBtn);
+    }
+}
+
 const attemptsText       = document.getElementById("attempts");
 const vraiCode           = "1404";
 const blurCarte          = document.querySelector(".blur-card");
@@ -205,6 +223,7 @@ filterCategorie.addEventListener("change",  () => afficherProduits(obtenirProdui
 
 /* ===========================
    PRODUITS – AFFICHAGE
+   FIX: loading="xxx" → loading="lazy"
 =========================== */
 function afficherProduits(liste) {
   if (vueProduitsMode === "carte") {
@@ -221,7 +240,7 @@ function afficherProduits(liste) {
 
     productsContainer.innerHTML = liste.map(p => `
       <div class="product-card">
-        <img src="${p.image}" alt="${echapperHtml(p.title)}" loading="xxx"/>
+        <img src="${p.image}" alt="${echapperHtml(p.title)}" loading="lazy"/>
         <div class="product-category">${echapperHtml(p.category)}</div>
         <div class="product-name">${echapperHtml(p.title.slice(0, 55))}</div>
         <div class="product-price">${p.price} $</div>
@@ -342,7 +361,6 @@ filterVille.addEventListener("change",    () => afficherClients(obtenirClientsFi
 
 /* ===========================
    CLIENTS – AFFICHAGE
-   FIX: afficher le nom complet (c.name) et non juste le prénom
 =========================== */
 function afficherClients(liste) {
   if (vueClientsMode === "carte") {
@@ -527,36 +545,42 @@ openPopup.onclick = () => {
 closePopup.onclick = () => {
   popup.style.display = "none";
   password.value      = "";
-  message.innerHTML   = "";
+  messageEl.innerHTML = "";
+  messageEl.className = "";
 };
 
 validate.onclick = () => {
   if (estBloque) return;
 
   if (password.value === vraiCode) {
-    message.innerHTML = `<i class="fas fa-check-circle" style="color:#34d399;margin-right:6px"></i> Accès autorisé`;
-    message.className = "success";
+    messageEl.innerHTML = `<i class="fas fa-check-circle" style="color:#34d399;margin-right:6px"></i> Accès autorisé`;
+    messageEl.className = "success";
 
     setTimeout(() => {
       popup.style.display = "none";
       password.value      = "";
-      message.innerHTML   = "";
+      messageEl.innerHTML = "";
+      messageEl.className = "";
 
-      blurCarte.style.opacity       = "0";
-      blurCarte.style.pointerEvents = "none";
-      cadenas.style.display         = "none";
+      if (blurCarte) {
+        blurCarte.style.opacity       = "0";
+        blurCarte.style.pointerEvents = "none";
+      }
+      if (cadenas) cadenas.style.display = "none";
 
       clearTimeout(minuteurCarte);
       minuteurCarte = setTimeout(() => {
-        blurCarte.style.opacity       = "";
-        blurCarte.style.pointerEvents = "";
-        cadenas.style.display         = "";
+        if (blurCarte) {
+          blurCarte.style.opacity       = "";
+          blurCarte.style.pointerEvents = "";
+        }
+        if (cadenas) cadenas.style.display = "";
 
         nbEssais               = 3;
         estBloque              = false;
         validate.disabled      = false;
         validate.style.opacity = "";
-        attemptsText.innerHTML = "3 essais";
+        if (attemptsText) attemptsText.innerHTML = "3 essais";
         openPopup.style.opacity = "";
         openPopup.style.cursor  = "";
       }, 60000);
@@ -565,15 +589,15 @@ validate.onclick = () => {
 
   } else {
     nbEssais--;
-    attemptsText.innerHTML = nbEssais + " essais";
-    message.innerHTML      = "Code incorrect";
-    message.className      = "error";
-    password.value         = "";
+    if (attemptsText) attemptsText.innerHTML = nbEssais + " essais";
+    messageEl.innerHTML = "Code incorrect";
+    messageEl.className = "error";
+    password.value      = "";
 
     if (nbEssais <= 0) {
       estBloque               = true;
-      message.innerHTML       = "Accès bloqué";
-      message.className       = "error";
+      messageEl.innerHTML     = "Accès bloqué";
+      messageEl.className     = "error";
       validate.disabled       = true;
       validate.style.opacity  = ".5";
       openPopup.style.opacity = ".5";
@@ -585,10 +609,3 @@ validate.onclick = () => {
 password.addEventListener("keydown", (e) => {
   if (e.key === "Enter") validate.onclick();
 });
-
-
-
-
-
-
-
