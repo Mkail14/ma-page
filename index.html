@@ -13,6 +13,9 @@
 </head>
 <body>
 
+  <!-- ============ CANVAS BACKGROUND (Three.js ghost) ============ -->
+  <canvas id="bg-canvas"></canvas>
+
   <!-- ============ OVERLAYS ============ -->
   <div class="menu-overlay" id="menuOverlay"></div>
   <div class="toast-container" id="toastContainer"></div>
@@ -52,17 +55,16 @@
       <span></span><span></span><span></span>
     </div>
     <a href="#" class="nav-link-custom">Produits</a>
-    <a href="Mes_sites_web/Portfolio/index.html" class="nav-link-custom">Portfolio</a>
-    <div class="nav-auth-zone" id="navAuthZone">
-      <button class="contact-btn" id="openFormBtn">S'inscrire</button>
-    </div>
+    <button id="themeBtn" style="background:none;border:none;cursor:pointer;padding:0;display:flex;align-items:center;">
+      <img id="themeIcon" src="https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f319.svg" width="26">
+    </button>
   </nav>
 
   <!-- ============ MAIN LANDING PAGE ============ -->
   <section class="landing-page" id="landingPage">
     <div class="hero-side">
       <div class="hero-content">
-        <h1 class="fw-bold" id="heroTitle">Bonjour R. Mario</h1>
+        <h1 class="fw-bold">Bonjour R. Mario</h1>
         <p>Ma page de garde là où il y a tous mes projets et mes réalisations web UI design. Bienvenue dans mon univers créatif :)</p>
         <div class="hero-buttons">
           <a href="#" class="btn-primary-custom">Mes anciennes tâches</a>
@@ -100,112 +102,15 @@
       </div>
     </div>
 
-    <!-- Todo Panel -->
     <div class="todo-panel">
       <h2>Tâches à faire - DWWM</h2>
       <div class="todo-box">
+
         <input type="text" id="inputTache" placeholder="Ajouter une tâche...">
         <button id="btnAjouter">Ajouter</button>
       </div>
       <div id="messageVide" class="message-vide"><p>Aucune tâche en vue BG</p></div>
       <ul id="listeTaches"></ul>
-    </div>
-  </section>
-
-  <!-- ============ DASHBOARD (affiché après connexion) ============ -->
-  <section class="dashboard-page" id="dashboardPage" style="display:none;">
-    <div class="dashboard-header">
-      <div class="dash-greeting">
-        <div class="dash-avatar" id="dashAvatar">M</div>
-        <div>
-          <h2 id="dashName">Mario</h2>
-          <span class="dash-badge"><i class="fa-solid fa-circle-check"></i> Connecté</span>
-        </div>
-      </div>
-      <button class="btn-logout" id="btnLogout">
-        <i class="fa-solid fa-right-from-bracket"></i> Déconnexion
-      </button>
-    </div>
-
-    <div class="dashboard-grid">
-      <!-- Profil Card -->
-      <div class="dash-card profile-card">
-        <div class="dash-card-header">
-          <i class="fa-solid fa-user-circle"></i>
-          <h4>Mon Profil</h4>
-        </div>
-        <div class="profile-info">
-          <div class="profile-row"><span class="label">Nom</span><span id="profNom">—</span></div>
-          <div class="profile-row"><span class="label">Prénom</span><span id="profPrenom">—</span></div>
-          <div class="profile-row"><span class="label">Email</span><span id="profEmail">—</span></div>
-          <div class="profile-row"><span class="label">Âge</span><span id="profAge">—</span></div>
-          <div class="profile-row"><span class="label">Formation</span><span id="profFormation">—</span></div>
-          <div class="profile-row"><span class="label">Membre depuis</span><span id="profCreated">—</span></div>
-        </div>
-        <button class="btn-edit-profile" id="btnEditProfile">
-          <i class="fa-solid fa-pen"></i> Modifier le profil
-        </button>
-      </div>
-
-      <!-- Sécurité Card -->
-      <div class="dash-card security-card">
-        <div class="dash-card-header">
-          <i class="fa-solid fa-shield-halved"></i>
-          <h4>Sécurité</h4>
-        </div>
-        <div class="security-items">
-          <div class="security-item">
-            <div class="sec-icon ok"><i class="fa-solid fa-check"></i></div>
-            <div>
-              <strong>Email vérifié</strong>
-              <p id="secEmailStatus">En attente de vérification</p>
-            </div>
-          </div>
-          <div class="security-item">
-            <div class="sec-icon ok"><i class="fa-solid fa-lock"></i></div>
-            <div>
-              <strong>Mot de passe</strong>
-              <p>Protégé par Supabase Auth</p>
-            </div>
-          </div>
-          <div class="security-item">
-            <div class="sec-icon ok"><i class="fa-solid fa-clock"></i></div>
-            <div>
-              <strong>Dernière connexion</strong>
-              <p id="secLastLogin">—</p>
-            </div>
-          </div>
-        </div>
-        <button class="btn-change-pw" id="btnChangePw">
-          <i class="fa-solid fa-key"></i> Changer le mot de passe
-        </button>
-      </div>
-
-      <!-- Stats / Activité -->
-      <div class="dash-card stats-card">
-        <div class="dash-card-header">
-          <i class="fa-solid fa-chart-line"></i>
-          <h4>Activité</h4>
-        </div>
-        <div class="stats-grid">
-          <div class="stat-box">
-            <span class="stat-num" id="statTaches">0</span>
-            <span class="stat-label">Tâches</span>
-          </div>
-          <div class="stat-box">
-            <span class="stat-num" id="statEvents">0</span>
-            <span class="stat-label">Événements</span>
-          </div>
-          <div class="stat-box">
-            <span class="stat-num" id="statCommits">0</span>
-            <span class="stat-label">Commits</span>
-          </div>
-          <div class="stat-box">
-            <span class="stat-num purple">∞</span>
-            <span class="stat-label">Créativité</span>
-          </div>
-        </div>
-      </div>
     </div>
   </section>
 
@@ -222,71 +127,24 @@
     </div>
   </div>
 
-  <!-- ============ AUTH OVERLAY ============ -->
-  <div class="form-overlay" id="formOverlay">
-    <div class="popup-formulaire" id="popupFormulaire">
-      <!-- Contenu injecté dynamiquement par le JS -->
+  <!-- ============ PRELOADER ============ -->
+  <div id="preloader" class="preloader">
+    <div class="preloader-content">
+      <div class="ghost-loader">
+        <svg class="ghost-svg" height="80" viewBox="0 0 512 512" width="80" xmlns="http://www.w3.org/2000/svg">
+          <path class="ghost-body" d="m508.374 432.802s-46.6-39.038-79.495-275.781c-8.833-87.68-82.856-156.139-172.879-156.139-90.015 0-164.046 68.458-172.879 156.138-32.895 236.743-79.495 275.782-79.495 275.782-15.107 25.181 20.733 28.178 38.699 27.94 35.254-.478 35.254 40.294 70.516 40.294 35.254 0 35.254-35.261 70.508-35.261s37.396 45.343 72.65 45.343 37.389-45.343 72.651-45.343c35.254 0 35.254 35.261 70.508 35.261s35.27-40.772 70.524-40.294c17.959.238 53.798-2.76 38.692-27.94z" fill="white" />
+          <circle class="ghost-eye left-eye" cx="208" cy="225" r="22" fill="black" />
+          <circle class="ghost-eye right-eye" cx="297" cy="225" r="22" fill="black" />
+        </svg>
+      </div>
+      <div class="loading-text">page d'acceuil de Mario</div>
+      <div class="loading-progress">
+        <div class="progress-bar"></div>
+      </div>
     </div>
   </div>
 
-  <!-- ============ MODIFIER PROFILE OVERLAY ============ -->
-  <div class="form-overlay" id="editProfileOverlay">
-    <div class="popup-formulaire" style="max-width:520px;">
-      <button class="close-form" id="closeEditProfile"><i class="fa-solid fa-xmark"></i></button>
-      <h2 class="text1">Modifier mon profil</h2>
-      <p class="form-subtitle">Mets à jour tes informations.</p>
-      <form class="custom-form" onsubmit="return false;">
-        <div class="form-row">
-          <div class="input-group-custom">
-            <label>Nom</label>
-            <input type="text" id="editNom" placeholder="Votre nom">
-          </div>
-          <div class="input-group-custom">
-            <label>Prénom</label>
-            <input type="text" id="editPrenom" placeholder="Votre prénom">
-          </div>
-        </div>
-        <div class="form-row">
-          <div class="input-group-custom">
-            <label>Âge</label>
-            <input type="number" id="editAge" placeholder="Votre âge">
-          </div>
-          <div class="input-group-custom">
-            <label>Formation</label>
-            <input type="text" id="editFormation" placeholder="Votre formation">
-          </div>
-        </div>
-        <button type="button" class="btn-formulaire btn-active" id="btnSaveProfile">
-          <i class="fa-solid fa-floppy-disk"></i> Sauvegarder
-        </button>
-      </form>
-    </div>
-  </div>
-
-  <!-- ============ CHANGER MOT DE PASSE OVERLAY ============ -->
-  <div class="form-overlay" id="changePwOverlay">
-    <div class="popup-formulaire" style="max-width:460px;">
-      <button class="close-form" id="closeChangePw"><i class="fa-solid fa-xmark"></i></button>
-      <h2 class="text1">Nouveau mot de passe</h2>
-      <p class="form-subtitle">Choisis un mot de passe sécurisé.</p>
-      <form class="custom-form" onsubmit="return false;">
-        <div class="input-group-custom">
-          <label>Nouveau mot de passe</label>
-          <input type="password" id="newPw" placeholder="Minimum 6 caractères">
-        </div>
-        <div class="input-group-custom">
-          <label>Confirmer</label>
-          <input type="password" id="confirmNewPw" placeholder="Confirmer le mot de passe">
-          <div id="errNewPw" style="font-size:12px;margin-top:4px;"></div>
-        </div>
-        <button type="button" class="btn-formulaire btn-active" id="btnSavePw">
-          <i class="fa-solid fa-key"></i> Mettre à jour
-        </button>
-      </form>
-    </div>
-  </div>
-
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="Assets/js/script.js"></script>
+  <script type="module" src="Assets/js/script-background.js"></script>
 </body>
 </html>
