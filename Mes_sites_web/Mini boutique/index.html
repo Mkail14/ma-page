@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Boutique Yt</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"/>
+  <link rel="stylesheet" href="/Mes_sites_web/Mini boutique/Assets/css/styles.css">
+</head>
+<body>
+
+<!-- MENU OVERLAY -->
+<div class="menu-overlay" id="menuOverlay"></div>
+
+<!-- MENU PANEL -->
+<div class="menu-panel" id="menuPanel">
+  <div class="menu-grid">
+    <div class="menu-column">
+      <h6>Boutique</h6>
+      <a href="#">Tous les produits</a>
+      <a href="#">Nouveautés</a>
+      <a href="#">Promotions</a>
+    </div>
+    <div class="menu-column">
+      <h6>Compte</h6>
+      <a href="#">Mon profil</a>
+      <a href="#">Mes commandes</a>
+      <a href="#">Favoris</a>
+    </div>
+    <div class="menu-column">
+      <h6>Aide</h6>
+      <a href="#">FAQ</a>
+      <a href="#">Retours</a>
+      <a href="tel:0639941101">Contact</a>
+    </div>
+    <div class="menu-column menu-social">
+      <p>Suivez-nous</p>
+      <div class="social-icons">
+        <a href="#"><i class="fab fa-instagram"></i></a>
+        <a href="#"><i class="fab fa-tiktok"></i></a>
+        <a href="#"><i class="fab fa-twitter"></i></a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- BOTTOM NAV -->
+<nav class="bottom-nav">
+  <div class="menu-icon" id="menuBtn">
+    <span></span><span></span><span></span>
+  </div>
+  <a href="tel:0639941101" class="nav-link-custom">Contact</a>
+  <a href="#" class="nav-link-custom">Inventaire</a>
+  <a href="#" class="nav-link-custom">Panier</a>
+  <a href="#" class="nav-link-custom notif-btn" id="notifBtn">
+    <i class="fas fa-bell"></i>
+  </a>
+</nav>
+
+<!-- TOAST -->
+<div class="toast" id="toast"><i class="fas fa-check-circle"></i><span id="toastMsg"></span></div>
+
+<!-- ============================================================
+     VUE : BOUTIQUE
+============================================================ -->
+<div class="view active" id="viewBoutique">
+
+  <!-- NAVBAR -->
+  <nav class="navbar">
+    <div class="nav-logo">BOUTIQUE Yt</div>
+    <div class="nav-search">
+      <i class="fas fa-search"></i>
+      <input type="text" id="searchInput" placeholder="Rechercher un produit…"/>
+    </div>
+    <div class="nav-right">
+      <button class="nav-btn" id="cartBtn" title="Panier">
+        <i class="fas fa-shopping-bag"></i>
+        <div class="cart-badge" id="cartBadge">0</div>
+      </button>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero-banner">
+    <div class="hero-tag">Nam Karibou</div>
+    <p class="hero-sub">Des produits soigneusement sélectionnés pour une expérience d'achat incomparable.</p>
+    <div class="hero-stats">
+      <div>
+        <div class="hero-stat-num" id="heroTotal">—</div>
+        <div class="hero-stat-label">Produits</div>
+      </div>
+      <div>
+        <div class="hero-stat-num" id="heroCats">—</div>
+        <div class="hero-stat-label">Catégories</div>
+      </div>
+      <div>
+        <div class="hero-stat-num">4.8★</div>
+        <div class="hero-stat-label">Note moyenne</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FILTRES -->
+  <div class="filters-bar" id="filtersBar">
+    <button class="filter-chip active" data-cat="">Tout</button>
+    <select class="filter-sort" id="sortSelect">
+      <option value="">Trier par…</option>
+      <option value="price-asc">Prix croissant</option>
+      <option value="price-desc">Prix décroissant</option>
+      <option value="rating">Mieux notés</option>
+      <option value="name">Nom A→Z</option>
+    </select>
+  </div>
+
+  <!-- CATALOGUE -->
+  <main class="catalogue">
+    <div class="catalogue-header">
+      <div class="catalogue-count"><span id="countDisplay">0</span> produit(s)</div>
+      <button class="btn-load" id="btnLoad">
+        <i class="fas fa-download"></i> Charger les produits
+      </button>
+    </div>
+    <div class="products-grid" id="productsGrid">
+      <div class="empty-state">
+        <i class="fas fa-box-open"></i>
+        <p>Ya pas de produit chef :)</p>
+      </div>
+    </div>
+  </main>
+
+</div>
+
+<!-- ============================================================
+     MODAL DETAIL PRODUIT
+============================================================ -->
+<div class="modal-backdrop" id="modalBackdrop">
+  <div class="modal-product" id="modalProduct">
+    <div class="modal-product-img">
+      <img id="modalImg" src="" alt=""/>
+    </div>
+    <div class="modal-product-info">
+      <button class="modal-close" id="modalClose"><i class="fas fa-times"></i></button>
+      <div class="modal-cat" id="modalCat"></div>
+      <div class="modal-name" id="modalName"></div>
+      <div class="modal-stars" id="modalStars"></div>
+      <div class="modal-desc" id="modalDesc"></div>
+      <div class="modal-price" id="modalPrice"></div>
+      <div class="modal-qty">
+        <button class="qty-btn" id="modalQtyMinus"><i class="fas fa-minus"></i></button>
+        <div class="qty-val" id="modalQtyVal">1</div>
+        <button class="qty-btn" id="modalQtyPlus"><i class="fas fa-plus"></i></button>
+      </div>
+      <button class="btn-add-cart" id="modalAddCart">
+        <i class="fas fa-shopping-bag"></i> Ajouter au panier
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     PANIER SIDEBAR
+============================================================ -->
+<div class="cart-overlay" id="cartOverlay"></div>
+<aside class="cart-sidebar" id="cartSidebar">
+  <div class="cart-header">
+    <div class="cart-title">Panier <span class="cart-title-count" id="cartTitleCount"></span></div>
+    <button class="cart-close" id="cartClose"><i class="fas fa-times"></i></button>
+  </div>
+  <div class="cart-items" id="cartItems">
+    <div class="cart-empty" id="cartEmpty">
+      <i class="fas fa-shopping-bag"></i>
+      <p>Votre panier est vide</p>
+    </div>
+  </div>
+  <div class="cart-footer">
+    <div class="cart-summary-line">
+      <span>Sous-total</span><span id="cartSubtotal">0,00 €</span>
+    </div>
+    <div class="cart-summary-line">
+      <span>Livraison</span><span class="free">Gratuite</span>
+    </div>
+    <div class="cart-total-line">
+      <span class="cart-total-label">Total</span>
+      <span class="cart-total-price" id="cartTotal">0,00 €</span>
+    </div>
+    <button class="btn-checkout" id="btnCheckout" disabled>
+      <i class="fas fa-lock"></i> Passer la commande
+    </button>
+  </div>
+</aside>
+
+<!-- ============================================================
+     VUE : PAIEMENT
+============================================================ -->
+<div class="view" id="viewPaiement">
+
+  <nav class="payment-nav">
+    <div class="payment-logo">NOVA</div>
+    <div class="secure-badge"><i class="fas fa-shield-alt"></i> Paiement sécurisé</div>
+  </nav>
+
+  <div class="payment-steps">
+    <div class="p-step done">
+      <div class="p-step-num"><i class="fas fa-check" style="font-size:10px"></i></div>
+      <span class="p-step-label">Panier</span>
+    </div>
+    <div class="p-step-line"></div>
+    <div class="p-step active">
+      <div class="p-step-num">2</div>
+      <span class="p-step-label">Livraison & Paiement</span>
+    </div>
+    <div class="p-step-line"></div>
+    <div class="p-step">
+      <div class="p-step-num">3</div>
+      <span class="p-step-label">Confirmation</span>
+    </div>
+  </div>
+
+  <div class="payment-layout">
+
+    <div class="payment-form-wrap">
+      <h2>Livraison & Paiement</h2>
+
+      <div class="form-section">
+        <div class="form-section-title">
+          <i class="fas fa-map-marker-alt"></i> Adresse de livraison
+        </div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label">Prénom</label>
+            <input type="text" class="form-input" placeholder="Jean"/>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Nom</label>
+            <input type="text" class="form-input" placeholder="Dupont"/>
+          </div>
+          <div class="form-group form-full">
+            <label class="form-label">Adresse</label>
+            <input type="text" class="form-input" placeholder="12 rue de la Paix"/>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Code postal</label>
+            <input type="text" class="form-input" placeholder="75001"/>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Ville</label>
+            <input type="text" class="form-input" placeholder="Paris"/>
+          </div>
+          <div class="form-group form-full">
+            <label class="form-label">Email</label>
+            <input type="email" class="form-input" placeholder="jean@exemple.fr"/>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <div class="form-section-title">
+          <i class="fas fa-credit-card"></i> Mode de paiement
+        </div>
+        <div class="payment-methods">
+          <div class="pm-option selected" data-pm="card">
+            <i class="fas fa-credit-card"></i>
+            <span>Carte</span>
+          </div>
+          <div class="pm-option" data-pm="paypal">
+            <i class="fab fa-paypal"></i>
+            <span>PayPal</span>
+          </div>
+          <div class="pm-option" data-pm="apple">
+            <i class="fab fa-apple-pay"></i>
+            <span>Apple Pay</span>
+          </div>
+        </div>
+        <div class="form-grid">
+          <div class="form-group form-full">
+            <label class="form-label">Numéro de carte</label>
+            <div class="card-number-wrap">
+              <input type="text" class="form-input" id="cardNumber" placeholder="1234 5678 9012 3456" maxlength="19"/>
+              <i class="fas fa-credit-card card-icon" id="cardTypeIcon"></i>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Date d'expiration</label>
+            <input type="text" class="form-input" id="cardExpiry" placeholder="MM/AA" maxlength="5"/>
+          </div>
+          <div class="form-group">
+            <label class="form-label">CVV</label>
+            <input type="text" class="form-input" id="cardCVV" placeholder="•••" maxlength="3"/>
+          </div>
+          <div class="form-group form-full">
+            <label class="form-label">Titulaire de la carte</label>
+            <input type="text" class="form-input" placeholder="JEAN DUPONT"/>
+          </div>
+        </div>
+      </div>
+
+      <button class="btn-pay" id="btnPay">
+        <i class="fas fa-lock"></i> Confirmer et payer
+        <span id="payAmount"></span>
+      </button>
+
+      <button class="btn-load" style="margin-top:14px;border-radius:10px" id="btnBackShop">
+        <i class="fas fa-arrow-left"></i> Retour à la boutique
+      </button>
+    </div>
+
+    <div class="order-summary">
+      <h3>Votre commande <span class="summary-count" id="summaryCount"></span></h3>
+      <div class="order-items" id="orderItems"></div>
+      <div class="summary-lines">
+        <div class="sl-row"><span>Sous-total</span><span id="summarySubtotal"></span></div>
+        <div class="sl-row"><span>Livraison</span><span class="free">Gratuite</span></div>
+        <div class="sl-row"><span>TVA (20%)</span><span id="summaryTVA"></span></div>
+        <div class="sl-row total">
+          <span>Total TTC</span>
+          <span class="sl-total-price" id="summaryTotal"></span>
+        </div>
+      </div>
+      <div class="trust-badges">
+        <div class="trust-item"><i class="fas fa-shield-alt"></i> Paiement 100% sécurisé</div>
+        <div class="trust-item"><i class="fas fa-truck"></i> Livraison gratuite dès 30€</div>
+        <div class="trust-item"><i class="fas fa-undo"></i> Retours gratuits 30 jours</div>
+        <div class="trust-item"><i class="fas fa-headset"></i> Support 7j/7</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script src="/Mes_sites_web/Mini boutique/Assets/js/script.js"></script>
+</body>
+</html>

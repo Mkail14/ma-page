@@ -142,8 +142,8 @@ body {
 }
 
 /* FIX: icônes de section avec couleur spécifique */
-.section-icon { color: #7c3aed !important; margin-right: 0; }
-.clients-icon { color: #0ea5e9 !important; }
+.section-icon { color: #7c3aed ; margin-right: 0; }
+.clients-icon { color: #0ea5e9 ; }
 
 /* ===========================
    TOP ACTIONS
@@ -232,8 +232,8 @@ body {
 
 /* FIX: icônes dans les boutons – couleur blanche, pas bleue */
 .btn-icon {
-  color: white !important;
-  margin-right: 0 !important;
+  color: white ;
+  margin-right: 0 ;
   font-size: 13px;
 }
 
@@ -332,12 +332,14 @@ body {
   font-size: 13px;
   align-items: center;
 }
+
+
 /* FIX: icônes client avec leur couleur bleue dédiée */
 .client-icon {
-  color: #0ea5e9 !important;
+  color: #0ea5e9 ;
   width: 14px;
   flex-shrink: 0;
-  margin-right: 0 !important;
+  margin-right: 0 ;
 }
 
 /* ===========================
@@ -368,7 +370,7 @@ body {
   display: block;
   margin-bottom: 14px;
   opacity: .5;
-  color: #555 !important;
+  color: #555 ;
 }
 
 /* ===========================
@@ -406,11 +408,11 @@ body {
 
 /* FIX: icône cloche – couleur neutre blanche */
 .notif-bell-icon {
-  color: #bbb !important;
-  margin: 0 !important;
+  color: #bbb ;
+  margin: 0 ;
   transition: color .2s;
 }
-.notif-btn:hover .notif-bell-icon { color: white !important; }
+.notif-btn:hover .notif-bell-icon { color: white ; }
 
 /* ===========================
    MENU ICON (hamburger)
@@ -1019,10 +1021,71 @@ body {
 .error   { color: #ff5c5c; }
 .success { color: #34d399; }
 
+
 /* ===========================
    UTILITAIRE
 =========================== */
 .hidden { display: none; }
+
+
+/* ===========================
+   BOUTONS D'ACTION SUR PRODUIT
+=========================== */
+.product-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+  flex-wrap: wrap;
+}
+
+.pa-btn {
+  flex: 1;
+  min-width: 32px;
+  height: 34px;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  transition: transform .15s, opacity .15s, background .15s;
+  color: white;
+}
+
+.pa-btn:hover { transform: translateY(-2px); opacity: .9; }
+
+.pa-qty    { background: rgba(124,58,237,.35); border: 1px solid rgba(124,58,237,.5); }
+.pa-epuise { background: rgba(245,158,11,.25); border: 1px solid rgba(245,158,11,.45); }
+.pa-edit   { background: rgba(14,165,233,.25); border: 1px solid rgba(14,165,233,.45); }
+.pa-delete { background: rgba(239,68,68,.25);  border: 1px solid rgba(239,68,68,.5);  }
+
+.pa-btn i { color: white ; margin: 0 ; }
+
+/* ===========================
+   BADGE QUANTITÉ
+=========================== */
+.qty-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  margin-bottom: 6px;
+  white-space: nowrap;
+}
+
+.qty-badge.ok       { background: rgba(16,185,129,.15); color: #34d399; border: 1px solid rgba(16,185,129,.3); }
+.qty-badge.bas      { background: rgba(245,158,11,.15); color: #fbbf24; border: 1px solid rgba(245,158,11,.35); }
+.qty-badge.zero     { background: rgba(239,68,68,.15);  color: #f87171; border: 1px solid rgba(239,68,68,.3);  }
+.qty-badge.epuise   { background: rgba(239,68,68,.2);   color: #f87171; border: 1px solid rgba(239,68,68,.4);  }
+.qty-badge.indefini { background: rgba(100,116,139,.15); color: #94a3b8; border: 1px solid rgba(100,116,139,.3); }
+
+/* ===========================
+   RESPONSIVE – actions produit
+=========================== */
+
 
 /* ===========================
    RESPONSIVE – 900px
@@ -1096,7 +1159,11 @@ body {
   .notif-panel.active {
     transform: translateY(0);
   }
+  .pa-btn { min-width: 28px; height: 30px; font-size: 12px; }
 }
+
+
+
 
 /* ===========================
    RESPONSIVE – 360px
@@ -1108,3 +1175,5 @@ body {
   .modal-box { padding: 24px 18px; }
   #cardsSales, #design1 { display: none; }
 }
+
+

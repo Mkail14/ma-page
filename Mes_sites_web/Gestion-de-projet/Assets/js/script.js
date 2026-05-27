@@ -1,9 +1,5 @@
 /* ===========================
    GESTION DE PROJET — script.js
-   Fixes:
-   - Import Supabase cassé → supprimé (non utilisé ici)
-   - message element → référencé depuis le DOM
-   - loading="xxx" → loading="lazy"
 =========================== */
 
 /* ===========================
@@ -45,7 +41,6 @@ const closePopup         = document.getElementById("closePopup");
 const validate           = document.getElementById("validate");
 const password           = document.getElementById("password");
 
-// FIX: "message" n'existe pas dans le HTML → on le crée dynamiquement
 let messageEl = document.getElementById("message");
 if (!messageEl) {
     messageEl = document.createElement("div");
@@ -80,6 +75,124 @@ let vueProduitsMode  = "carte";
 let vueClientsMode   = "carte";
 let clientsCharges   = false;
 let minuteurCarte    = null;
+
+/* ===========================
+   MODAL PRODUIT
+=========================== */
+(function creerModalProduit() {
+  const div = document.createElement("div");
+  div.innerHTML = `
+    <div class="modal-overlay" id="modalProduit">
+      <div class="modal-box" style="max-width:520px">
+        <h3 id="modalProduitTitre"><i class="fas fa-box modal-icon" style="color:#7c3aed"></i>Produit</h3>
+        <input type="text"   id="mpNom"         class="glass-input" placeholder="Nom du produit"/>
+        <input type="number" id="mpPrix"         class="glass-input" placeholder="Prix (€)"/>
+        <input type="text"   id="mpCategorie"    class="glass-input" placeholder="Catégorie"/>
+        <input type="url"    id="mpImage"        class="glass-input" placeholder="URL de l'image (optionnel)"/>
+        <textarea            id="mpDescription"  class="glass-input" placeholder="Description (optionnel)" rows="3" style="resize:vertical;height:auto"></textarea>
+        <input type="number" id="mpQuantite"     class="glass-input" placeholder="Quantité en stock" min="0"/>
+        <div class="modal-actions">
+          <button class="glass-btn btn-dark"    id="mpAnnuler"><i class="fas fa-times btn-icon"></i>Annuler</button>
+          <button class="glass-btn btn-produit" id="mpConfirmer"><i class="fas fa-check btn-icon"></i>Confirmer</button>
+        </div>
+      </div>
+    </div>`;
+  document.body.appendChild(div.firstElementChild);
+})();
+
+/* Sélecteurs modal produit */
+const modalProduit    = document.getElementById("modalProduit");
+const mpTitre         = document.getElementById("modalProduitTitre");
+const mpNom           = document.getElementById("mpNom");
+const mpPrix          = document.getElementById("mpPrix");
+const mpCategorie     = document.getElementById("mpCategorie");
+const mpImage         = document.getElementById("mpImage");
+const mpDescription   = document.getElementById("mpDescription");
+const mpQuantite      = document.getElementById("mpQuantite");
+const mpAnnuler       = document.getElementById("mpAnnuler");
+const mpConfirmer     = document.getElementById("mpConfirmer");
+
+let produitEnCoursId  = null; // null = ajout, sinon = id du produit à modifier
+
+function ouvrirModalProduit(produit = null) {
+  produitEnCoursId = produit ? produit.id : null;
+  mpTitre.innerHTML = produit
+    ? `<i class="fas fa-edit modal-icon" style="color:#7c3aed;margin-right:8px"></i>Modifier le produit`
+    : `<i class="fas fa-plus modal-icon" style="color:#7c3aed;margin-right:8px"></i>Ajouter un produit`;
+  mpNom.value         = produit ? produit.title       : "";
+  mpPrix.value        = produit ? produit.price       : "";
+  mpCategorie.value   = produit ? produit.category    : "";
+  mpImage.value       = produit ? (produit.image || "") : "";
+  mpDescription.value = produit ? (produit.description || "") : "";
+  mpQuantite.value    = produit ? (produit.quantite ?? "") : "";
+  modalProduit.classList.add("active");
+  mpNom.focus();
+}
+
+function fermerModalProduit() {
+  modalProduit.classList.remove("active");
+}
+
+mpAnnuler.addEventListener("click", fermerModalProduit);
+modalProduit.addEventListener("click", e => { if (e.target === modalProduit) fermerModalProduit(); });
+document.addEventListener("keydown", e => {
+  if (e.key === "Escape" && modalProduit.classList.contains("active")) fermerModalProduit();
+});
+
+mpConfirmer.addEventListener("click", () => {
+  const nom = mpNom.value.trim();
+  if (!nom) {
+    mpNom.style.borderColor = "#ef4444";
+    mpNom.focus();
+    setTimeout(() => mpNom.style.borderColor = "", 1500);
+    return;
+  }
+
+  if (produitEnCoursId === null) {
+    /* ── AJOUT ── */
+    const nouveauProduit = {
+      id:          Date.now(),
+      title:       nom,
+      price:       parseFloat(mpPrix.value) || 0,
+      category:    mpCategorie.value.trim() || "Autre",
+      image:       mpImage.value.trim() || "https://via.placeholder.com/200x200?text=Produit",
+      description: mpDescription.value.trim() || "",
+      quantite:    mpQuantite.value !== "" ? parseInt(mpQuantite.value) : null,
+      custom:      true
+    };
+    tousLesProduits.unshift(nouveauProduit);
+  } else {
+    /* ── MODIFICATION ── */
+    const idx = tousLesProduits.findIndex(p => p.id === produitEnCoursId);
+    if (idx !== -1) {
+      tousLesProduits[idx] = {
+        ...tousLesProduits[idx],
+        title:       nom,
+        price:       parseFloat(mpPrix.value) || 0,
+        category:    mpCategorie.value.trim() || "Autre",
+        image:       mpImage.value.trim() || tousLesProduits[idx].image,
+        description: mpDescription.value.trim(),
+        quantite:    mpQuantite.value !== "" ? parseInt(mpQuantite.value) : null,
+      };
+    }
+  }
+
+  remplirCategories();
+  afficherProduits(obtenirProduitsFiltres());
+  fermerModalProduit();
+});
+
+/* ===========================
+   BOUTON "+" DANS LA TOOLBAR INVENTAIRE
+=========================== */
+(function ajouterBtnPlus() {
+  const btnPlus = document.createElement("button");
+  btnPlus.id        = "btnAjouterProduit";
+  btnPlus.className = "glass-btn btn-produit";
+  btnPlus.innerHTML = `<i class="fas fa-plus btn-icon"></i><span class="btn-label">Ajouter</span>`;
+  btnPlus.addEventListener("click", () => ouvrirModalProduit());
+  btnCharger.insertAdjacentElement("afterend", btnPlus);
+})();
 
 /* ===========================
    MENU HAMBURGER
@@ -181,7 +294,13 @@ async function chargerProduits() {
     const reponse = await fetch("https://fakestoreapi.com/products");
     const donnees = await reponse.json();
 
-    tousLesProduits = melangerTableau(donnees);
+    /* Conserve les produits custom déjà ajoutés */
+    const customExistants = tousLesProduits.filter(p => p.custom);
+    const nouveaux = melangerTableau(donnees).map(p => ({
+      ...p,
+      quantite: p.quantite ?? null
+    }));
+    tousLesProduits = [...customExistants, ...nouveaux];
 
     remplirCategories();
     afficherProduits(obtenirProduitsFiltres());
@@ -222,8 +341,24 @@ rechercheProduit.addEventListener("input",  () => afficherProduits(obtenirProdui
 filterCategorie.addEventListener("change",  () => afficherProduits(obtenirProduitsFiltres()));
 
 /* ===========================
+   HELPER – badge quantité
+=========================== */
+function badgeQuantite(p) {
+  if (p.epuise) {
+    return `<div class="qty-badge epuise"><i class="fas fa-ban" style="font-size:10px;margin-right:4px"></i>Épuisé</div>`;
+  }
+  if (p.quantite === null || p.quantite === undefined) {
+    return `<div class="qty-badge indefini"><i class="fas fa-question" style="font-size:10px;margin-right:4px"></i>Stock non défini</div>`;
+  }
+  if (p.quantite === 0) {
+    return `<div class="qty-badge zero"><i class="fas fa-exclamation-triangle" style="font-size:10px;margin-right:4px"></i>Rupture (0)</div>`;
+  }
+  const couleur = p.quantite <= 5 ? "bas" : "ok";
+  return `<div class="qty-badge ${couleur}"><i class="fas fa-cubes" style="font-size:10px;margin-right:4px"></i>${p.quantite} en stock</div>`;
+}
+
+/* ===========================
    PRODUITS – AFFICHAGE
-   FIX: loading="xxx" → loading="lazy"
 =========================== */
 function afficherProduits(liste) {
   if (vueProduitsMode === "carte") {
@@ -239,16 +374,32 @@ function afficherProduits(liste) {
     }
 
     productsContainer.innerHTML = liste.map(p => `
-      <div class="product-card">
+      <div class="product-card" data-id="${p.id}">
         <img src="${p.image}" alt="${echapperHtml(p.title)}" loading="lazy"/>
         <div class="product-category">${echapperHtml(p.category)}</div>
         <div class="product-name">${echapperHtml(p.title.slice(0, 55))}</div>
         <div class="product-price">${p.price} $</div>
-        <div class="product-description">${echapperHtml(p.description.slice(0, 90))}…</div>
+        <div class="product-description">${echapperHtml((p.description || "").slice(0, 90))}…</div>
+        ${badgeQuantite(p)}
+        <div class="product-actions">
+          <button class="pa-btn pa-qty"    data-id="${p.id}" title="Modifier la quantité">
+            <i class="fas fa-cubes"></i>
+          </button>
+          <button class="pa-btn pa-epuise" data-id="${p.id}" title="${p.epuise ? 'Remettre en stock' : 'Marquer épuisé'}">
+            <i class="fas fa-${p.epuise ? 'undo' : 'ban'}"></i>
+          </button>
+          <button class="pa-btn pa-edit"   data-id="${p.id}" title="Modifier">
+            <i class="fas fa-pen"></i>
+          </button>
+          <button class="pa-btn pa-delete" data-id="${p.id}" title="Supprimer">
+            <i class="fas fa-trash"></i>
+          </button>
+        </div>
       </div>
     `).join("");
 
   } else {
+    /* ── VUE LISTE ── */
     productsContainer.className = "table-responsive mt-4";
 
     if (!liste.length) {
@@ -265,6 +416,8 @@ function afficherProduits(liste) {
             <th>Produit</th>
             <th>Prix</th>
             <th>Catégorie</th>
+            <th>Stock</th>
+            <th>Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -278,6 +431,15 @@ function afficherProduits(liste) {
               <td>${echapperHtml(p.title)}</td>
               <td><strong style="color:#a78bfa">${p.price} $</strong></td>
               <td>${echapperHtml(p.category)}</td>
+              <td>${badgeQuantite(p)}</td>
+              <td>
+                <div style="display:flex;gap:8px;flex-wrap:wrap">
+                  <button class="pa-btn pa-qty"    data-id="${p.id}" title="Modifier la quantité"><i class="fas fa-cubes"></i></button>
+                  <button class="pa-btn pa-epuise" data-id="${p.id}" title="${p.epuise ? 'Remettre en stock' : 'Marquer épuisé'}"><i class="fas fa-${p.epuise ? 'undo' : 'ban'}"></i></button>
+                  <button class="pa-btn pa-edit"   data-id="${p.id}" title="Modifier"><i class="fas fa-pen"></i></button>
+                  <button class="pa-btn pa-delete" data-id="${p.id}" title="Supprimer"><i class="fas fa-trash"></i></button>
+                </div>
+              </td>
             </tr>
           `).join("")}
         </tbody>
@@ -285,7 +447,106 @@ function afficherProduits(liste) {
   }
 
   mettreAJourStats(liste.length);
+  attacherActionsProduits();
 }
+
+/* ===========================
+   ACTIONS PRODUITS
+=========================== */
+function attacherActionsProduits() {
+  productsContainer.querySelectorAll(".pa-edit").forEach(btn => {
+    btn.addEventListener("click", e => {
+      e.stopPropagation();
+      const id = parseInt(btn.dataset.id);
+      const produit = tousLesProduits.find(p => p.id === id);
+      if (produit) ouvrirModalProduit(produit);
+    });
+  });
+
+  productsContainer.querySelectorAll(".pa-delete").forEach(btn => {
+    btn.addEventListener("click", e => {
+      e.stopPropagation();
+      const id = parseInt(btn.dataset.id);
+      if (confirm("Supprimer ce produit ?")) {
+        tousLesProduits = tousLesProduits.filter(p => p.id !== id);
+        remplirCategories();
+        afficherProduits(obtenirProduitsFiltres());
+      }
+    });
+  });
+
+  productsContainer.querySelectorAll(".pa-epuise").forEach(btn => {
+    btn.addEventListener("click", e => {
+      e.stopPropagation();
+      const id = parseInt(btn.dataset.id);
+      const idx = tousLesProduits.findIndex(p => p.id === id);
+      if (idx !== -1) {
+        tousLesProduits[idx].epuise = !tousLesProduits[idx].epuise;
+        if (tousLesProduits[idx].epuise) tousLesProduits[idx].quantite = 0;
+        afficherProduits(obtenirProduitsFiltres());
+      }
+    });
+  });
+
+  productsContainer.querySelectorAll(".pa-qty").forEach(btn => {
+    btn.addEventListener("click", e => {
+      e.stopPropagation();
+      const id  = parseInt(btn.dataset.id);
+      const idx = tousLesProduits.findIndex(p => p.id === id);
+      if (idx === -1) return;
+      const valActuelle = tousLesProduits[idx].quantite ?? "";
+      ouvrirModalQuantite(id, valActuelle);
+    });
+  });
+}
+
+/* ===========================
+   MODAL QUANTITÉ
+=========================== */
+(function creerModalQuantite() {
+  const div = document.createElement("div");
+  div.innerHTML = `
+    <div class="modal-overlay" id="modalQuantite">
+      <div class="modal-box" style="max-width:340px;text-align:center">
+        <h3 style="justify-content:center"><i class="fas fa-cubes modal-icon" style="color:#7c3aed;margin-right:8px"></i>Quantité en stock</h3>
+        <input type="number" id="mqValeur" class="glass-input" placeholder="Quantité" min="0" style="text-align:center;font-size:22px;font-weight:700"/>
+        <div class="modal-actions" style="justify-content:center;margin-top:16px">
+          <button class="glass-btn btn-dark"    id="mqAnnuler"><i class="fas fa-times btn-icon"></i>Annuler</button>
+          <button class="glass-btn btn-produit" id="mqConfirmer"><i class="fas fa-check btn-icon"></i>Enregistrer</button>
+        </div>
+      </div>
+    </div>`;
+  document.body.appendChild(div.firstElementChild);
+})();
+
+const modalQuantite = document.getElementById("modalQuantite");
+const mqValeur      = document.getElementById("mqValeur");
+const mqAnnuler     = document.getElementById("mqAnnuler");
+const mqConfirmer   = document.getElementById("mqConfirmer");
+let   mqProduitId   = null;
+
+function ouvrirModalQuantite(id, valActuelle) {
+  mqProduitId      = id;
+  mqValeur.value   = valActuelle;
+  modalQuantite.classList.add("active");
+  mqValeur.focus();
+}
+
+mqAnnuler.addEventListener("click", () => modalQuantite.classList.remove("active"));
+modalQuantite.addEventListener("click", e => { if (e.target === modalQuantite) modalQuantite.classList.remove("active"); });
+
+mqConfirmer.addEventListener("click", () => {
+  const val = mqValeur.value;
+  const idx = tousLesProduits.findIndex(p => p.id === mqProduitId);
+  if (idx !== -1) {
+    tousLesProduits[idx].quantite = val !== "" ? parseInt(val) : null;
+    if (parseInt(val) > 0) tousLesProduits[idx].epuise = false;
+    afficherProduits(obtenirProduitsFiltres());
+  }
+  modalQuantite.classList.remove("active");
+});
+
+mqValeur.addEventListener("keydown", e => { if (e.key === "Enter") mqConfirmer.click(); });
 
 /* ===========================
    CATÉGORIES – REMPLISSAGE SELECT
