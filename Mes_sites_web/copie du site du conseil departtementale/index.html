@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Conseil Départemental de Mayotte</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="Assets/css/styles.css">
+</head>
+<body>
+
+  <main class="landing">
+    <section class="hero-side">
+        <h2 class="txt1">Conseil Départemental<br>de Mayotte</h2>
+        <p>Le Département de Mayotte agit chaque jour pour le développement, la solidarité et l'avenir du 101e département français.</p>
+        <div class="d-flex gap-3 flex-wrap">
+          <a href="https://lecd976soutientmonprojet.fr/" target="_blank" class="btn-hero btn-hero-primary">
+            <i class="bi bi-award"></i>Demander une subvention</a>
+          <a href="https://www.mayotte.fr/actualite" target="_blank" class="btn-hero btn-hero-secondary">
+            <i class="bi bi-newspaper"></i>Actualités</a>
+        </div>
+    </section>
+    <section class="center-blocks">
+<!-------------------------------------------------------------------------------------------- Communiqués------------------------------------------------------------------------------------------------------------->
+          <div class="glass-block glass">
+            <div class="block-header">
+                <i class="bi bi-megaphone"></i>
+                <h3>Communiqués de presse</h3>
+                <div class="view-toggle" id="communiqueToggle">
+                    <button class="view-btn active" data-view="list" aria-label="Vue liste"><i class="bi bi-list-ul"></i></button>
+                    <button class="view-btn" data-view="box" aria-label="Vue grille"><i class="bi bi-grid-3x3-gap"></i></button>
+                </div>
+                <div class="status-dot"></div>
+            </div>
+
+            <!-- Vue liste -->
+            <div class="scroll-list communique-view view-list active">
+              <a href="https://www.mayotte.fr/ressources/communique/?file=1770693365&ext=pdf" target="_blank" class="list-item">
+                <div class="item-date"><i class="bi bi-calendar3 me-1"></i>7 février 2026</div>
+                <div class="item-title">Lancement des appels à projets Interreg VI Canal du Mozambique 2026</div>
+              </a>
+              <a href="https://www.mayotte.fr/ressources/communique/?file=1770695839&ext=pdf" target="_blank" class="list-item">
+                <div class="item-date"><i class="bi bi-calendar3 me-1"></i>5 février 2026</div>
+                <div class="item-title">Le Département-Région renforce son soutien aux familles vulnérables via le FASAAL</div>
+              </a>
+              <a href="https://www.mayotte.fr/ressources/communique/?file=1769879847&ext=pdf" target="_blank" class="list-item">
+                <div class="item-date"><i class="bi bi-calendar3 me-1"></i>31 janvier 2026</div>
+                <div class="item-title">Concertation citoyenne : donnez un nom au futur réseau de transport en commun</div>
+              </a>
+              <a href="https://www.mayotte.fr/ressources/communique/?file=1769879750&ext=pdf" target="_blank" class="list-item">
+                <div class="item-date"><i class="bi bi-calendar3 me-1"></i>31 janvier 2026</div>
+                <div class="item-title">Droit de retrait des agents PMI d'Acoua : le Département-Région mobilisé</div>
+              </a>
+              <a href="https://www.mayotte.fr/ressources/communique/?file=1769879563&ext=pdf" target="_blank" class="list-item">
+                <div class="item-date"><i class="bi bi-calendar3 me-1"></i>29 janvier 2026</div>
+                <div class="item-title">Convention MuMA / Mucem : Mayotte mise à l'honneur à Marseille en 2026</div>
+              </a>
+              <a href="https://www.mayotte.fr/pratique/salle-de-presse/communiques-de-presse" target="_blank" class="list-item list-item-more">
+                <i class="bi bi-arrow-right me-2"></i>Voir tous les communiqués
+              </a>
+            </div>
+
+            <!-- Vue grille -->
+            <div class="scroll-list communique-view view-box">
+              <div class="communique-grid">
+                <a href="https://www.mayotte.fr/ressources/communique/?file=1770693365&ext=pdf" target="_blank" class="communique-card">
+                  <div class="cc-date">7 fév. 2026</div>
+                  <div class="cc-title">Lancement Interreg VI Canal du Mozambique 2026</div>
+                </a>
+                <a href="https://www.mayotte.fr/ressources/communique/?file=1770695839&ext=pdf" target="_blank" class="communique-card">
+                  <div class="cc-date">5 fév. 2026</div>
+                  <div class="cc-title">Renforcement soutien familles vulnérables – FASAAL</div>
+                </a>
+                <a href="https://www.mayotte.fr/ressources/communique/?file=1769879847&ext=pdf" target="_blank" class="communique-card">
+                  <div class="cc-date">31 jan. 2026</div>
+                  <div class="cc-title">Concertation : nom du futur réseau de transport</div>
+                </a>
+                <a href="https://www.mayotte.fr/ressources/communique/?file=1769879750&ext=pdf" target="_blank" class="communique-card">
+                  <div class="cc-date">31 jan. 2026</div>
+                  <div class="cc-title">Droit de retrait PMI d'Acoua – Département mobilisé</div>
+                </a>
+                <a href="https://www.mayotte.fr/ressources/communique/?file=1769879563&ext=pdf" target="_blank" class="communique-card">
+                  <div class="cc-date">29 jan. 2026</div>
+                  <div class="cc-title">Convention MuMA / Mucem – Mayotte à Marseille 2026</div>
+                </a>
+                <a href="https://www.mayotte.fr/pratique/salle-de-presse/communiques-de-presse" target="_blank" class="communique-card cc-more">
+                  <i class="bi bi-arrow-right"></i> Tous les communiqués
+                </a>
+              </div>
+            </div>
+          </div>
+
+                <!-- Agenda -->
+          <div class="glass-block glass">
+            <div class="block-header">
+              <i class="bi bi-calendar3"></i>
+              <h3>Agenda</h3>
+              <div class="status-dot"></div>
+            </div>
+
+            <div class="agenda-timeline-wrap">
+              <div class="agenda-timeline">
+                  <div class="tl-event past">
+                      <div class="tl-dot"></div>
+                      <div class="tl-line"></div>
+                      <a href="https://www.mayotte.fr/ressources/communique/?file=1769879847&ext=pdf" target="_blank" class="tl-card">
+                        <div class="tl-date">31 jan. 2026</div>
+                        <div class="tl-title">Concertation réseau de transport en commun</div>
+                      </a>
+                  </div>
+
+                  <div class="tl-event past">
+                      <div class="tl-dot"></div>
+                      <div class="tl-line"></div>
+                      <a href="https://www.mayotte.fr/services-en-ligne/aides-et-subventions/appels-a-projets" target="_blank" class="tl-card">
+                        <div class="tl-date">7 fév. 2026</div>
+                        <div class="tl-title">Appels à projets Interreg VI – Canal du Mozambique</div>
+                      </a>
+                  </div>
+
+                  <div class="tl-event current">
+                      <div class="tl-dot"></div>
+                      <div class="tl-line"></div>
+                      <a href="https://www.mayotte.fr/actualite/lire/914/un-appel-a-manifestation-dinterets-pour-exploiter-le-parc-conteneurs-de-longoni" target="_blank" class="tl-card">
+                        <div class="tl-date">En cours</div>
+                        <div class="tl-title">AMI – Parc conteneurs du port de Longoni</div>
+                        <div class="tl-desc">Appel à manifestation d'intérêts ouvert</div>
+                      </a>
+                  </div>
+
+                  <div class="tl-event upcoming">
+                      <div class="tl-dot"></div>
+                      <div class="tl-line"></div>
+                      <a href="https://www.mayotte.fr/actualite/lire/913/mayotte-celebre-ses-traditions-et-son-histoire-a-travers-le-fatma-2026" target="_blank" class="tl-card">
+                        <div class="tl-date">Juin 2026</div>
+                        <div class="tl-title">FATMA 2026 – Festival des Arts et Traditions de Mayotte</div>
+                        <div class="tl-desc">Programme complet à consulter</div>
+                      </a>
+                  </div>
+              </div>
+            </div>
+
+
+<!----------------------------------------------------------------------------------------- Mini calendrier + événements ----------------------------------------------------------------------------------------------->
+          <div class="agenda-bottom">
+            <!-- Calendrier -->
+            <div class="mini-cal">
+              <div class="mini-cal-header">
+                <button class="cal-nav" id="calPrev"><i class="bi bi-chevron-left"></i></button>
+                <span class="cal-month" id="calMonthLabel"></span>
+                <button class="cal-nav" id="calNext"><i class="bi bi-chevron-right"></i></button>
+              </div>
+              <div class="mini-cal-grid">
+                <span class="cal-dow">L</span><span class="cal-dow">M</span><span class="cal-dow">M</span>
+                <span class="cal-dow">J</span><span class="cal-dow">V</span><span class="cal-dow">S</span>
+                <span class="cal-dow">D</span>
+              </div>
+              <div class="mini-cal-days" id="calDays"></div>
+            </div>
+
+            <!-- Événements du jour -->
+            <div class="today-events">
+              <div class="today-label"><i class="bi bi-circle-fill me-1" style="color:#22c55e;font-size:7px;vertical-align:middle"></i>Aujourd'hui</div>
+              <div id="todayEventsList" class="today-list"></div>
+            </div>
+
+          </div>
+          </div>
+    </section>
+
+<!--------------------------------------------------------------------------------------------- À découvrir ------------------------------------------------------------------------------------------------------------>
+    <aside class="bloc-decouvrir glass">
+      <div class="decouvrir-tabs">
+          <button class="decouvrir-tab-btn active" data-dtab="dtab-decouvrir">
+            <i class="bi bi-compass me-1"></i>À découvrir
+          </button>
+          <button class="decouvrir-tab-btn" data-dtab="dtab-actu">
+            <i class="bi bi-newspaper me-1"></i>Actualités
+          </button>
+      </div>
+
+      <div class="decouvrir-tab-content active" id="dtab-decouvrir">
+          <a href="https://www.mayotte.fr/actualite/lire/914/un-appel-a-manifestation-dinterets-pour-exploiter-le-parc-conteneurs-de-longoni" target="_blank" class="decouvrir-item">
+            <img src="https://www.mayotte.fr/medias/ce-moment/le-departement-region-lance-un-appel-a-manifestation-dinterets-pour-le-port-de-longoni-05052026-064300.png" alt="" loading="lazy">
+            <div class="di-body"><span class="di-tag">Économie</span><p>AMI – Parc conteneurs du port de Longoni</p></div>
+          </a>
+          <a href="https://musee-virtuel.mayotte.fr" target="_blank" class="decouvrir-item">
+            <img src="https://www.mayotte.fr/medias/ce-moment/thumbs/le-musee-de-mayotte-vous-invite-a-une-immersion-totale-cliquez-explorez-vibrez-13102025-071821.jpg" alt="" loading="lazy">
+            <div class="di-body"><span class="di-tag">Culture</span><p>Le Musée de Mayotte – Immersion virtuelle</p></div>
+          </a>
+          <a href="https://www.mayottefibre.fr" target="_blank" class="decouvrir-item">
+            <img src="https://www.mayotte.fr/medias/ce-moment/thumbs/ensemble-connectons-mayotte-au-futur-29062025-165430.jpg" alt="" loading="lazy">
+            <div class="di-body"><span class="di-tag">Numérique</span><p>Ensemble, connectons Mayotte au futur</p></div>
+          </a>
+          <a href="https://feder.mayotte.fr/" target="_blank" class="decouvrir-item">
+            <img src="https://www.mayotte.fr/medias/ce-moment/thumbs/leurope-sengage-a-mayotte-avec-le-fonds-europeen-pour-le-developpement-regional-23042024-180404.jpg" alt="" loading="lazy">
+            <div class="di-body"><span class="di-tag">Europe</span><p>L'Europe s'engage à Mayotte – FEDER</p></div>
+          </a>
+      </div>
+
+      <div class="decouvrir-tab-content" id="dtab-actu">
+          <a href="https://www.mayotte.fr/actualite/lire/914/un-appel-a-manifestation-dinterets-pour-exploiter-le-parc-conteneurs-de-longoni" target="_blank" class="decouvrir-item">
+            <img src="https://www.mayotte.fr/medias/actualite/une/1777916866.png" alt="" loading="lazy">
+            <div class="di-body"><span class="di-tag">Économie</span><p>Un AMI pour exploiter le parc conteneurs de Longoni</p></div>
+          </a>
+          <a href="https://www.mayotte.fr/actualite/lire/913/mayotte-celebre-ses-traditions-et-son-histoire-a-travers-le-fatma-2026" target="_blank" class="decouvrir-item">
+            <img src="https://www.mayotte.fr/medias/actualite/une/1776830932.jpg" alt="" loading="lazy">
+            <div class="di-body"><span class="di-tag">Culture</span><p>Mayotte célèbre ses traditions – FATMA 2026</p></div>
+          </a>
+          <a href="https://www.mayotte.fr/actualite/lire/912/mayotte-futur-pole-dexcellence-de-leconomie-sociale-et-solidaire" target="_blank" class="decouvrir-item">
+            <img src="https://www.mayotte.fr/medias/actualite/une/1776780758.jpg" alt="" loading="lazy">
+            <div class="di-body"><span class="di-tag">Économie sociale</span><p>Mayotte, futur pôle d'excellence de l'ESS</p></div>
+          </a>
+          <a href="https://www.mayotte.fr/actualite" target="_blank" class="list-item list-item-more mt-1">
+            <i class="bi bi-arrow-right me-2"></i>Toutes les actualités
+          </a>
+      </div>
+    </aside>
+
+  </main>
+
+  <!------------------------------------------------------------------------------------------ NAVBAR BARRE DE NAVIGATION ------------------------------------------------------------------------------------------->
+  <nav class="bottom-nav d-flex align-items-center gap-2">
+    <div class="bg-blur d-flex align-items-center gap-4">
+        <div class="logo">
+          <img src="https://www.mayotte.fr/assets/themes/img/header-logo-2.png" alt="Logo Mayotte">
+        </div>
+        <div class="d-none d-md-flex align-items-center gap-4">
+          <span class="navbar-link" data-panel="panel-conseil">Conseil départemental</span>
+          <span class="navbar-link" data-panel="panel-europe">Europe</span>
+          <span class="navbar-link" data-panel="panel-services">Service en ligne</span>
+        </div>
+        <button class="menu-btn ms-auto" id="menuBtn" aria-expanded="false" aria-label="Menu">
+          <span></span><span></span><span></span>
+        </button>
+        <span class="navbar-link d-none d-md-inline" data-panel="panel-contact">Nous contacter</span>
+  </div>
+
+      <div class="search-wrapper">
+        <button class="search-btn" id="searchBtn" aria-label="Recherche">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+              <circle cx="10" cy="10" r="7"/>
+              <line x1="21" y1="21" x2="15" y2="15"/>
+            </svg>
+        </button>
+        <input type="text" id="searchInput" class="search-input" placeholder="Rechercher..." aria-label="Recherche">
+      </div>
+    
+  </nav>
+
+  <!----------------------------------------------------------------------------------------------------MEGA PANELS---------------------------------------------------------------------------------------------------->
+
+  <!-- Conseil départemental -->
+  <div class="mega-panel" id="panel-conseil">
+    <button class="panel-close" aria-label="Fermer"><i class="bi bi-x-lg"></i></button>
+    <h3 class="panel-title">Conseil départemental</h3>
+    <div class="panel-grid">
+      <div class="panel-section">
+        <div class="panel-section-title">Assemblée départementale</div>
+        <a href="https://www.mayotte.fr/le-conseil-departemental/assemblee-departementale/mot-du-president" target="_blank" class="panel-link"><i class="bi bi-person-circle"></i>Mot du Président</a>
+        <a href="https://www.mayotte.fr/le-conseil-departemental/assemblee-departementale/le-president" target="_blank" class="panel-link"><i class="bi bi-person-badge"></i>Le Président</a>
+        <a href="https://www.mayotte.fr/le-conseil-departemental/assemblee-departementale/les-elus" target="_blank" class="panel-link"><i class="bi bi-people"></i>Les élus</a>
+        <a href="https://www.mayotte.fr/le-conseil-departemental/assemblee-departementale/commissions-thematiques" target="_blank" class="panel-link"><i class="bi bi-diagram-3"></i>Commissions thématiques</a>
+        <a href="https://www.mayotte.fr/le-conseil-departemental/assemblee-departementale/actes-administratifs" target="_blank" class="panel-link"><i class="bi bi-file-earmark-text"></i>Actes administratifs</a>
+        <a href="https://www.mayotte.fr/le-conseil-departemental/assemblee-departementale/discours" target="_blank" class="panel-link"><i class="bi bi-mic"></i>Discours</a>
+      </div>
+      <div class="panel-section">
+        <div class="panel-section-title">Institution</div>
+        <a href="https://www.mayotte.fr/le-conseil-departemental/institution/historique" target="_blank" class="panel-link"><i class="bi bi-clock-history"></i>Historique</a>
+        <a href="https://www.mayotte.fr/le-conseil-departemental/institution/fonctionnement" target="_blank" class="panel-link"><i class="bi bi-gear"></i>Fonctionnement</a>
+        <a href="https://www.mayotte.fr/le-conseil-departemental/institution/budget" target="_blank" class="panel-link"><i class="bi bi-cash-stack"></i>Budget</a>
+        <a href="https://www.mayotte.fr/le-conseil-departemental/institution/competences" target="_blank" class="panel-link"><i class="bi bi-check2-circle"></i>Compétences</a>
+        <a href="https://www.mayotte.fr/le-conseil-departemental/institution/services-administratifs" target="_blank" class="panel-link"><i class="bi bi-building"></i>Services administratifs</a>
+      </div>
+      <div class="panel-section">
+        <div class="panel-section-title">Territoire & Missions</div>
+        <a href="https://www.mayotte.fr/le-conseil-departemental/territoire/les-cantons" target="_blank" class="panel-link"><i class="bi bi-map"></i>Les cantons</a>
+        <a href="https://www.mayotte.fr/le-conseil-departemental/territoire/les-communes" target="_blank" class="panel-link"><i class="bi bi-geo-alt"></i>Les communes</a>
+        <a href="https://www.mayotte.fr/le-conseil-departemental/missions/action-sociale" target="_blank" class="panel-link"><i class="bi bi-heart"></i>Action sociale</a>
+        <a href="https://www.mayotte.fr/le-conseil-departemental/missions/education-formation" target="_blank" class="panel-link"><i class="bi bi-mortarboard"></i>Éducation & Formation</a>
+        <a href="https://www.mayotte.fr/le-conseil-departemental/missions/environnement" target="_blank" class="panel-link"><i class="bi bi-tree"></i>Environnement</a>
+        <a href="https://www.mayotte.fr/le-conseil-departemental/nous-rejoindre/offres-demplois" target="_blank" class="panel-link panel-link-accent"><i class="bi bi-briefcase"></i>Offres d'emplois</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Europe -->
+  <div class="mega-panel" id="panel-europe">
+    <button class="panel-close" aria-label="Fermer"><i class="bi bi-x-lg"></i></button>
+    <h3 class="panel-title">L'Europe à Mayotte</h3>
+    <div class="panel-grid">
+      <div class="panel-section">
+        <div class="panel-section-title">Historique</div>
+        <a href="https://www.mayotte.fr/leurope/historique/rupeisation-de-mayotte" target="_blank" class="panel-link"><i class="bi bi-globe-europe-africa"></i>Rupéïsation de Mayotte</a>
+      </div>
+      <div class="panel-section">
+        <div class="panel-section-title">Fonds de développement</div>
+        <a href="https://www.mayotte.fr/leurope/fonds-de-developpement/10e-fed-regional" target="_blank" class="panel-link"><i class="bi bi-bank"></i>10e FED régional</a>
+        <a href="https://www.mayotte.fr/leurope/fonds-de-developpement/10e-fed-territorial" target="_blank" class="panel-link"><i class="bi bi-bank2"></i>10e FED territorial</a>
+        <a href="https://feder.mayotte.fr/" target="_blank" class="panel-link panel-link-accent"><i class="bi bi-stars"></i>FEDER – Réalisations</a>
+      </div>
+      <div class="panel-section">
+        <div class="panel-section-title">L'Europe s'engage</div>
+        <a href="https://www.mayotte.fr/leurope/leurope-sengage/realisations-de-leurope" target="_blank" class="panel-link"><i class="bi bi-award"></i>Réalisations de l'Europe</a>
+        <a href="https://www.europe-a-mayotte.fr" target="_blank" class="panel-link"><i class="bi bi-link-45deg"></i>Europe à Mayotte</a>
+        <a href="https://www.mayotte.fr/nos-dossiers/leurope-sengage/programmes-horizontaux" target="_blank" class="panel-link"><i class="bi bi-diagram-2"></i>Programmes horizontaux</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Services en ligne -->
+  <div class="mega-panel" id="panel-services">
+    <button class="panel-close" aria-label="Fermer"><i class="bi bi-x-lg"></i></button>
+    <h3 class="panel-title">Service en ligne</h3>
+    <div class="panel-grid">
+      <div class="panel-section">
+        <div class="panel-section-title">Aides & Subventions</div>
+        <a href="https://www.mayotte.fr/services-en-ligne/aides-et-subventions/aides-aux-entreprises" target="_blank" class="panel-link"><i class="bi bi-building-check"></i>Aides aux entreprises</a>
+        <a href="https://bourses.cd976.fr/" target="_blank" class="panel-link"><i class="bi bi-mortarboard"></i>Demande de bourses</a>
+        <a href="https://www.mayotte.fr/services-en-ligne/aides-et-subventions/appels-a-projets" target="_blank" class="panel-link"><i class="bi bi-megaphone"></i>Appels à projets</a>
+        <a href="https://lecd976soutientmonprojet.fr/" target="_blank" class="panel-link panel-link-accent"><i class="bi bi-rocket"></i>CD976 soutient mon projet</a>
+      </div>
+      <div class="panel-section">
+        <div class="panel-section-title">Au quotidien</div>
+        <a href="https://www.mayotte.fr/services-en-ligne/au-quotidien/publicite-des-actes" target="_blank" class="panel-link"><i class="bi bi-journal-text"></i>Publicité des actes</a>
+        <a href="https://www.mayotte.fr/services-en-ligne/au-quotidien/enquetes-publiques" target="_blank" class="panel-link"><i class="bi bi-search"></i>Enquêtes publiques</a>
+        <a href="https://www.mayotte.fr/services-en-ligne/au-quotidien/offres-demplois" target="_blank" class="panel-link"><i class="bi bi-briefcase"></i>Offres d'emplois</a>
+        <a href="https://www.mayotte.fr/services-en-ligne/au-quotidien/marches-publics" target="_blank" class="panel-link"><i class="bi bi-file-earmark-ruled"></i>Marchés publics</a>
+      </div>
+      <div class="panel-section">
+        <div class="panel-section-title">Ressources & Vie pratique</div>
+        <a href="https://www.mayotte.fr/services-en-ligne/ressources-documentaires/aides-aux-communes" target="_blank" class="panel-link"><i class="bi bi-buildings"></i>Aides aux communes</a>
+        <a href="https://www.mayotte.fr/services-en-ligne/vie-pratique/bibliotheque-departementale" target="_blank" class="panel-link"><i class="bi bi-book"></i>Bibliothèque départ.</a>
+        <a href="https://www.mayotte.fr/services-en-ligne/vie-pratique/documentation-telechargements" target="_blank" class="panel-link"><i class="bi bi-download"></i>Documentation</a>
+        <a href="https://mila-pass.mayotte.fr/" target="_blank" class="panel-link panel-link-accent"><i class="bi bi-ticket-perforated"></i>Mila Pass</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Nous contacter -->
+  <div class="mega-panel" id="panel-contact">
+    <button class="panel-close" aria-label="Fermer"><i class="bi bi-x-lg"></i></button>
+    <h3 class="panel-title">Nous contacter</h3>
+    <div class="panel-grid">
+      <div class="panel-section">
+        <div class="panel-section-title">Coordonnées</div>
+        <div class="panel-info"><i class="bi bi-telephone text-info"></i><span>+262 269 66 10 00</span></div>
+        <div class="panel-info"><i class="bi bi-envelope text-info"></i><span>webmaster@cg976.fr</span></div>
+        <div class="panel-info"><i class="bi bi-geo-alt text-info"></i><span>112, Bd Halidi Sélémani – BP 101<br>97645 Mamoudzou Cedex</span></div>
+        <div class="panel-info"><i class="bi bi-clock text-info"></i><span>Lun–Jeu : 7h30–12h / 13h–16h<br>Ven : 7h30–12h</span></div>
+      </div>
+      <div class="panel-section">
+        <div class="panel-section-title">Actions</div>
+        <a href="https://www.mayotte.fr/pratique/de-vous-a-nous/nous-contacter" target="_blank" class="panel-link panel-link-accent"><i class="bi bi-envelope-plus"></i>Envoyer un message</a>
+        <a href="https://www.mayotte.fr/pratique/de-vous-a-nous/plan-dacces" target="_blank" class="panel-link"><i class="bi bi-map"></i>Plan d'accès</a>
+        <a href="https://www.mayotte.fr/pratique/de-vous-a-nous/mentions-legales" target="_blank" class="panel-link"><i class="bi bi-shield-check"></i>Mentions légales</a>
+      </div>
+      <div class="panel-section">
+        <div class="panel-section-title">Nous suivre</div>
+        <a href="https://www.facebook.com/conseildepartementalMayotte/" target="_blank" class="panel-link"><i class="bi bi-facebook"></i>Facebook</a>
+        <a href="https://twitter.com/CDep976" target="_blank" class="panel-link"><i class="bi bi-twitter-x"></i>Twitter / X</a>
+        <a href="https://www.youtube.com/channel/UCNtP29UyWsncSiXojquqvBA/videos?view_as=subscriber" target="_blank" class="panel-link"><i class="bi bi-youtube"></i>YouTube / Web TV</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Menu burger -->
+  <div class="mega-panel" id="panel-menu">
+    <button class="panel-close" aria-label="Fermer"><i class="bi bi-x-lg"></i></button>
+    <h3 class="panel-title">Menu</h3>
+
+    <!-- Mobile -->
+    <div class="d-md-none d-flex flex-column gap-2">
+      <button class="panel-menu-btn mobile-link" data-panel="panel-conseil"><i class="bi bi-building me-2"></i>Conseil départemental</button>
+      <button class="panel-menu-btn mobile-link" data-panel="panel-europe"><i class="bi bi-globe-europe-africa me-2"></i>Europe</button>
+      <button class="panel-menu-btn mobile-link" data-panel="panel-services"><i class="bi bi-laptop me-2"></i>Service en ligne</button>
+      <button class="panel-menu-btn mobile-link" data-panel="panel-contact"><i class="bi bi-telephone me-2"></i>Nous contacter</button>
+      <a href="https://www.mayotte.fr/actualite" target="_blank" class="panel-menu-btn"><i class="bi bi-newspaper me-2"></i>Actualité</a>
+      <a href="https://lecd976soutientmonprojet.fr/" target="_blank" class="panel-menu-btn"><i class="bi bi-award me-2"></i>Subventions</a>
+    </div>
+
+    <!-- PC -->
+    <div class="d-none d-md-flex flex-column gap-2">
+      <button class="panel-menu-btn mobile-link" data-panel="panel-conseil"><i class="bi bi-heart me-2"></i>Solidarités</button>
+      <button class="panel-menu-btn mobile-link" data-panel="panel-conseil"><i class="bi bi-folder me-2"></i>Nos dossiers</button>
+      <a href="https://www.mayotte.fr/le-conseil-departemental/nous-rejoindre/offres-demplois" target="_blank" class="panel-menu-btn"><i class="bi bi-briefcase me-2"></i>Recrutements</a>
+      <button class="panel-menu-btn mobile-link" data-panel="panel-services"><i class="bi bi-laptop me-2"></i>Service en ligne</button>
+      <a href="https://lecd976soutientmonprojet.fr/" target="_blank" class="panel-menu-btn"><i class="bi bi-award me-2"></i>Subventions</a>
+    </div>
+  </div>
+
+
+        <section class="glass video-page">
+          <div class="vp-header">
+            <div class="vp-header-left">
+              <h2>Nos vidéos <span class="vp-subtitle">Conseil Départemental de Mayotte</span></h2>
+            </div>
+            <a href="https://www.youtube.com/channel/UCNtP29UyWsncSiXojquqvBA/videos" target="_blank" class="vp-yt-link">
+              <i class="bi bi-youtube"></i> WebTV 101
+            </a>
+          </div>
+
+          <div class="vp-body">
+
+            <!-- Grand lecteur -->
+            <div class="vp-player-wrap glass">
+              <div class="vp-player">
+                <iframe id="vpIframe" class="vp-iframe"
+                  frameborder="0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowfullscreen>
+                </iframe>
+              </div>
+              <div class="vp-info" id="vpInfo">
+                <div class="vp-info-date" id="vpDate"></div>
+                <div class="vp-info-title" id="vpTitle"></div>
+              </div>
+            </div>
+
+            <!-- Sidebar miniatures -->
+            <div class="vp-sidebar">
+              <div class="vp-sidebar-header">
+                <i class="bi bi-collection-play"></i>
+                <span>Vidéos récentes</span>
+                <div class="status-dot"></div>
+              </div>
+              <div class="vp-list" id="vpList"></div>
+            </div>
+
+          </div>
+        </section>
+
+
+   <script src="Assets/js/script.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
