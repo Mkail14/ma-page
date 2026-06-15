@@ -50,19 +50,27 @@
   </div>
 
   <!-- ============ NAVBAR ============ -->
-  <nav class="bottom-nav">
-    <div class="logo">DWWM - Mario</div>
-    <div class="menu-icon" id="menuBtn">
-      <span></span><span></span><span></span>
-    </div>
-    <a href="https://revolut.me/mkail1409" class="nav-link-custom">Faire un don</a>
-    <button id="themeBtn" style="background:none;border:none;cursor:pointer;padding:0;display:flex;align-items:center;">
-      <img id="themeIcon" src="https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f319.svg" width="26">
-    </button>
-  </nav>
+   <section class="navbar-global">
+      <nav class="bottom-nav">
+        <div class="logo">DWWM - Mario</div>
+        <div class="menu-icon" id="menuBtn">
+          <span></span><span></span><span></span>
+        </div>
+        <a href="https://revolut.me/mkail1409" class="nav-link-custom">Faire un don</a>
+        <button id="themeBtn" style="background:none;border:none;cursor:pointer;">
+          <img id="themeIcon" src="https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f319.svg" width="26">
+        </button>
+      </nav>
 
-  <!-- ============ MAIN LANDING PAGE ============ -->
-  <section class="landing-page" id="landingPage">
+      <nav class="bottom-nav1">
+        <button class="nav-link-custom page-link" id="homeLink" type="button">Acceuil</button>
+        <button class="nav-link-custom page-link" id="scheduleLink" type="button">Emploie du temps</button>
+      </nav>
+  </section>
+
+  <!-- ================================================ PAGE CONTAINER =================================================== -->
+  <div class="page-container">
+    <section class="landing-page page current" id="landingPage">
     <div class="hero-side">
       <div class="hero-content">
         <h1 class="fw-bold">Bonjour R. Mario</h1>
@@ -114,6 +122,29 @@
       <ul id="listeTaches"></ul>
     </div>
   </section>
+
+        <section class="schedule-page page next" id="schedulePage">
+          <div class="landing-page">
+            <div class="hero-side">
+              <div class="hero-content">
+                <h1 class="fw-bold">Emploi du temps</h1>
+                <p>Voici une page vide prête pour ton tableau. Tu peux ajouter ton propre contenu ou ton tableau de connexion ici.</p>
+              </div>
+            </div>
+            <div class="center-blocks">
+              <div class="glass-block schedule-card">
+                <div class="block-header">
+                  <h3><i class="fa-regular fa-calendar-check"></i> Page emploi du temps</h3>
+                </div>
+                <div class="updates-list">
+                  <div class="update-item" style="background:rgba(255,255,255,0.05);border:none;color:#d4d4d8;">
+                    <p>Ta page est prête. Colle ton tableau ou ton contenu ici.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
 
   <!-- ============ EVENT POPUP ============ -->
   <div class="event-overlay" id="eventOverlay">

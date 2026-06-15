@@ -15,6 +15,47 @@ body{
   overflow-x:hidden;
 }
 
+.page-container {
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
+  overflow: hidden;
+}
+
+.page {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  min-height: 100vh;
+  opacity: 0;
+  transform: translateX(100%);
+  pointer-events: none;
+  transition: transform 0.55s cubic-bezier(0.35, 0, 0.25, 1), opacity 0.35s ease;
+}
+
+.page.current,
+.page.prev,
+.page.next {
+  opacity: 1;
+}
+
+.page.current {
+  transform: translateX(0);
+  pointer-events: auto;
+  z-index: 3;
+}
+
+.page.prev {
+  transform: translateX(-100%);
+  z-index: 2;
+}
+
+.page.next {
+  transform: translateX(100%);
+  z-index: 1;
+}
+
 /* ======================================================================
    CANVAS BACKGROUND THREE.JS
    Le canvas est fixé derrière tout le contenu
@@ -158,15 +199,12 @@ body{
 
 /* ====== NAVBAR ====== */
 .bottom-nav{
-  position:fixed;
-  bottom:20px;
-  left:50%;
-  transform:translateX(-50%);
+  transform:translateX(-36%);
   z-index:1000;
   display:flex;
   align-items:center;
-  gap:25px;
-  padding:14px 22px;
+  gap:5px;
+  padding:6px 8px;
   border-radius:20px;
   background:rgba(255,255,255,0.08);
   backdrop-filter:blur(12px);
@@ -174,20 +212,55 @@ body{
   white-space:nowrap;
 }
 
+.bottom-nav1{
+  transform:translateX(-50%);
+  display:flex;
+  padding:6px 8px;
+  border-radius:20px;
+  background:rgba(255,255,255,0.08);
+  backdrop-filter:blur(12px);
+  border:1px solid rgba(255,255,255,0.1);
+  white-space:nowrap;
+}
+
+.navbar-global { 
+  position:fixed;
+  bottom:20px;
+  left:40%;
+  gap: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index:1000;
+}
+
 .logo{
   font-weight:bold;
   flex-shrink:0;
+  margin: 10px;
 }
 
 .nav-link-custom{
   color:#cfcfcf;
   text-decoration:none;
-  transition:color 0.3s;
+  transition:all 0.25s ease;
   flex-shrink:0;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  padding:10px 16px;
+  border-radius:14px;
+  /* border:1px solid transparent; */
 }
 
-.nav-link-custom:hover{
-  color:white;
+
+
+.nav-link-custom.active {
+  color:#fff;
+  background:rgba(255,255,255,0.22);
+  border-color:rgba(255,255,255,0.28);
+  box-shadow:0 16px 32px rgba(0,0,0,0.18);
+  transform: translateY(-1px);
 }
 
 /* ====== MENU BURGER ====== */
@@ -349,7 +422,7 @@ body{
   padding:14px 24px;
   border-radius:12px;
   text-decoration:none;
-  transition:transform 0.3s;
+  transition:transform 0.3s, background 0.3s, border-color 0.3s;
   font-size:15px;
 }
 
@@ -367,6 +440,53 @@ body{
 .btn-secondary-custom:hover{
   transform:translateY(-2px);
   color:white;
+}
+
+.schedule-card {
+  min-height:620px;
+  display:flex;
+  flex-direction:column;
+  justify-content:flex-start;
+}
+
+.schedule-frame-wrapper {
+  width:100%;
+  flex:1;
+  overflow:hidden;
+  border-radius:28px;
+  background:rgba(15, 15, 15, 0.85);
+  border:1px solid rgba(255,255,255,0.08);
+}
+
+.schedule-frame-wrapper iframe {
+  width:100%;
+  height:680px;
+  min-height:520px;
+  border:0;
+}
+
+@media(max-width:1024px){
+  .schedule-frame-wrapper iframe {
+    height:520px;
+  }
+}
+
+@media(max-width:768px){
+  .schedule-frame-wrapper iframe {
+    height:420px;
+  }
+}
+
+@media(max-width:1024px){
+  .schedule-frame-wrapper iframe {
+    height:520px;
+  }
+}
+
+@media(max-width:768px){
+  .schedule-frame-wrapper iframe {
+    height:420px;
+  }
 }
 
 /* ====== CENTER BLOCKS ====== */
@@ -870,7 +990,7 @@ body.light-mode .message-vide {
 body.light-mode .event-empty {
   color: #757575;
 }
-
+body.light-mode .bottom-nav1,
 body.light-mode .bottom-nav,
 body.light-mode .menu-panel {
   background: rgba(255, 255, 255, 0.726);

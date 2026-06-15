@@ -217,3 +217,46 @@ document.getElementById("themeBtn").addEventListener("click", () => {
     ? "https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f319.svg"
     : "https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/2600.svg";
 });
+
+// ─── PAGE SWITCHING ─────────────────────────────────────────────────
+const homeLink = document.getElementById("homeLink");
+const scheduleLink = document.getElementById("scheduleLink");
+const landingPage = document.getElementById("landingPage");
+const schedulePage = document.getElementById("schedulePage");
+
+function setActiveLink(pageId) {
+  if (homeLink) homeLink.classList.toggle("active", pageId === "landingPage");
+  if (scheduleLink) scheduleLink.classList.toggle("active", pageId === "schedulePage");
+}
+
+function showPage(pageId) {
+  if (!landingPage || !schedulePage) return;
+  const isHome = pageId === "landingPage";
+
+  if (isHome) {
+    landingPage.classList.add("current");
+    landingPage.classList.remove("prev", "next");
+    schedulePage.classList.add("next");
+    schedulePage.classList.remove("current", "prev");
+  } else {
+    schedulePage.classList.add("current");
+    schedulePage.classList.remove("prev", "next");
+    landingPage.classList.add("prev");
+    landingPage.classList.remove("current", "next");
+  }
+
+  setActiveLink(pageId);
+}
+
+if (homeLink) {
+  homeLink.addEventListener("click", () => {
+    showPage("landingPage");
+  });
+}
+if (scheduleLink) {
+  scheduleLink.addEventListener("click", () => {
+    showPage("schedulePage");
+  });
+}
+
+showPage("landingPage");
